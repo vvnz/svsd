@@ -13,6 +13,10 @@ import home from '../assets/icons/home.svg?raw'
 import tabWords from '../assets/icons/tab-words.svg?raw'
 import tabStickers from '../assets/icons/tab-stickers.svg?raw'
 import tabImages from '../assets/icons/tab-images.svg?raw'
+import star from '../assets/icons/star.svg?raw'
+import calendar from '../assets/icons/calendar.svg?raw'
+import settings from '../assets/icons/settings.svg?raw'
+import share from '../assets/icons/share.svg?raw'
 
 const ICONS = {
   fridge,
@@ -28,6 +32,10 @@ const ICONS = {
   tabWords,
   tabStickers,
   tabImages,
+  star,
+  calendar,
+  settings,
+  share,
 }
 
 export type IconName = keyof typeof ICONS

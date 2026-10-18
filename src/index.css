@@ -355,6 +355,53 @@ button {
   z-index: 5;
 }
 
+/* ---------- Side menu (pull-out tab) ---------- */
+
+.side-menu {
+  position: absolute;
+  z-index: 26;
+}
+
+.side-menu__shape {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  filter: drop-shadow(-1.2px 1.2px 1.2px rgba(0, 0, 0, 0.07));
+}
+
+.side-menu__tab,
+.side-menu__item {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  color: #000;
+}
+
+.side-menu__tab > span {
+  display: grid;
+  place-items: center;
+}
+
+.side-menu__item {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+}
+
+.side-menu__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  background: rgba(27, 27, 27, 0.06);
+  cursor: default;
+}
+
+.side-menu__tab:focus-visible,
+.side-menu__item:focus-visible {
+  outline: 2px solid var(--black-4);
+  outline-offset: -4px;
+}
+
 .empty-hint {
   position: absolute;
   left: 50%;

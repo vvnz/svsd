@@ -58,6 +58,8 @@ shadow `1px 2px 4.8px rgba(0,0,0,.25), 1px 1px 0 rgba(47,47,47,.6)`.
 - `src/components/Icon.tsx` + `src/assets/icons/` the hand-drawn icons, exported from Figma as SVG
   (they draw in `currentColor`)
 - `src/components/MagnetDrawer.tsx` the "Add Magnets" bottom sheet (collapsed / half / full)
+- `src/components/SideMenu.tsx` the pull-out home tab on the right edge (Figma component "menu",
+  75:5317). Slides out to show favourite, calendar, settings, share; those buttons don't go anywhere yet
 - `src/components/FridgeMagnet.tsx` one draggable magnet on the fridge (fly-in + settle wobble)
 - `src/components/Magnet.tsx` the magnet tile visual, shared everywhere
 - `src/state/useFridge.ts` the day's poem, autosaved to localStorage per date

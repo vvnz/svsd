@@ -2,6 +2,7 @@ import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 
 import { Icon } from '../components/Icon'
+import { SideMenu } from '../components/SideMenu'
 import { ShaderEffect } from '../lib/custom-effect-runtime'
 import {
   setup as setupEnamel,
@@ -115,10 +116,7 @@ export function PoemScreen({ onBack }: { onBack: () => void }) {
         <Icon name="back" size={25} />
       </button>
 
-      {/* TODO: the home tab will open the favorites fridge */}
-      <button className="home-tab" aria-label="Home">
-        <Icon name="home" size={23} />
-      </button>
+      <SideMenu screenWidth={size.width} />
 
       <AnimatePresence>
         {placed.length === 0 && snap === 'collapsed' && (
