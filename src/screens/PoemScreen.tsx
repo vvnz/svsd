@@ -1,7 +1,7 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { House, Undo2 } from 'lucide-react'
 
+import { Icon } from '../components/Icon'
 import { ShaderEffect } from '../lib/custom-effect-runtime'
 import {
   setup as setupEnamel,
@@ -56,7 +56,7 @@ function findSpot(text: string, placed: PlacedMagnet[], area: Rect) {
   }
 }
 
-export function PoemScreen() {
+export function PoemScreen({ onBack }: { onBack: () => void }) {
   const dateKey = todayKey()
   const words = useMemo(() => wordBankFor(dateKey), [dateKey])
   const { placed, dispatch } = useFridge(dateKey)
@@ -111,14 +111,13 @@ export function PoemScreen() {
         <div className="surface__fill" />
       </ShaderEffect>
 
-      <button className="icon-btn back-btn" aria-label="Back">
-        {/* TODO: swap for the Figma back icon */}
-        <Undo2 size={20} strokeWidth={2.2} />
+      <button className="icon-btn back-btn" aria-label="Back" onClick={onBack}>
+        <Icon name="back" size={25} />
       </button>
 
+      {/* TODO: the home tab will open the favorites fridge */}
       <button className="home-tab" aria-label="Home">
-        {/* TODO: swap for the Figma home icon */}
-        <House size={20} strokeWidth={1.8} />
+        <Icon name="home" size={23} />
       </button>
 
       <AnimatePresence>

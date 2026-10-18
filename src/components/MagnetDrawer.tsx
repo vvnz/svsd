@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { animate, motion, useDragControls, useMotionValue, type PanInfo } from 'motion/react'
-import { Image as ImageIcon, Sticker, Type } from 'lucide-react'
 
+import { Icon } from './Icon'
 import { Magnet } from './Magnet'
 import type { BankWord } from '../data/wordBank'
 
@@ -108,14 +108,13 @@ export function MagnetDrawer({
 
       <div className="drawer__toolbar">
         <div className="drawer__tabs" role="tablist">
-          {/* TODO: swap these placeholder icons for the exported Figma icons */}
           <button
             role="tab"
             aria-selected={tab === 'words'}
             className={`tab ${tab === 'words' ? 'tab--active' : ''}`}
             onClick={() => setTab('words')}
           >
-            <Type size={17} strokeWidth={2} />
+            <Icon name="tabWords" size={17} />
             {tab === 'words' && <span>Words</span>}
           </button>
           <button
@@ -125,7 +124,7 @@ export function MagnetDrawer({
             className={`tab ${tab === 'stickers' ? 'tab--active' : ''}`}
             onClick={() => setTab('stickers')}
           >
-            <Sticker size={18} strokeWidth={2} />
+            <Icon name="tabStickers" size={18} />
             {tab === 'stickers' && <span>Stickers</span>}
           </button>
           <button
@@ -135,7 +134,7 @@ export function MagnetDrawer({
             className={`tab ${tab === 'images' ? 'tab--active' : ''}`}
             onClick={() => setTab('images')}
           >
-            <ImageIcon size={18} strokeWidth={2} />
+            <Icon name="tabImages" size={18} />
             {tab === 'images' && <span>Images</span>}
           </button>
         </div>

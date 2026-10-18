@@ -16,6 +16,8 @@ The deliverable is a **screen-recorded demo video**, so polish what shows on cam
 
 - `npm run dev` start the dev server
 - `npm run build` typecheck + production build (run before every commit)
+- `npx vite build -c vite.artifact.config.ts` builds everything into one HTML file in `dist-single/`
+  (used to share the prototype as a single page)
 
 ## Figma
 
@@ -49,7 +51,12 @@ shadow `1px 2px 4.8px rgba(0,0,0,.25), 1px 1px 0 rgba(47,47,47,.6)`.
 
 ## Code map
 
+- `src/App.tsx` the screen flow: splash → connect → sign in → today's fridge (stack-style slide transitions)
+- `src/screens/SplashScreen.tsx`, `ConnectScreen.tsx`, `SignInScreen.tsx` onboarding. Connecting an app is
+  **simulated** (no real sign-in), connected apps are remembered in localStorage
 - `src/screens/PoemScreen.tsx` today's fridge: placing, dragging, removing magnets
+- `src/components/Icon.tsx` + `src/assets/icons/` the hand-drawn icons, exported from Figma as SVG
+  (they draw in `currentColor`)
 - `src/components/MagnetDrawer.tsx` the "Add Magnets" bottom sheet (collapsed / half / full)
 - `src/components/FridgeMagnet.tsx` one draggable magnet on the fridge (fly-in + settle wobble)
 - `src/components/Magnet.tsx` the magnet tile visual, shared everywhere
@@ -74,6 +81,5 @@ shadow `1px 2px 4.8px rgba(0,0,0,.25), 1px 1px 0 rgba(47,47,47,.6)`.
 
 ## TODO
 
-- Replace placeholder lucide icons (back, home, Words/Stickers/Images tabs) with the Figma icon exports.
 - Stickers and Images tabs (currently "coming soon").
 - Favorites fridge, calendar, share poster.
