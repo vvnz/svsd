@@ -147,3 +147,18 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# Vite / editor extras
+pnpm-debug.log*
+node_modules
+dist-ssr
+*.local
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
