@@ -6,6 +6,7 @@ import '@fontsource/benne/latin-400.css'
 import '@fontsource/dm-sans/latin-400.css'
 import '@fontsource/dm-sans/latin-500.css'
 import '@fontsource/inter/latin-400.css'
+import '@fontsource/patrick-hand/latin-400.css'
 import './index.css'
 import App from './App.tsx'
 

@@ -1,0 +1,104 @@
+import { AnimatePresence, motion } from 'motion/react'
+
+import { Fridge, SLOTS, SLOT_SCALE } from '../components/Fridge'
+import { FitPoem, fittedRect } from '../components/PoemCanvas'
+import { Icon } from '../components/Icon'
+import { useToast } from '../components/Toast'
+import { useApp } from '../state/appState'
+import { useScreenSize } from '../state/useScreenSize'
+
+type Props = {
+  draft: (string | null)[]
+  onChange: (draft: (string | null)[]) => void
+  onAdd: () => void
+  onCancel: () => void
+  onSave: () => void
+}
+
+// Figma "Fridge - Edit Favourites" (43:370): the fridge zooms in and every poem gets a remove badge.
+// Changes stay a draft until Save.
+const ZOOM = 1.5
+
+export function EditFavouritesScreen({ draft, onChange, onAdd, onCancel, onSave }: Props) {
+  const { fridgeStyle, poemFor } = useApp()
+  const [ref, size] = useScreenSize()
+  const toast = useToast()
+  const full = !draft.includes(null)
+  // the zoomed fridge fills the width, so the handle and every badge stay in view
+  const left = Math.round((size.width - 268 * ZOOM) / 2)
+
+  return (
+    <div className="screen" ref={ref}>
+      <div className="tool-column">
+        <button
+          className="icon-btn"
+          aria-label="Add a favourite"
+          onClick={() => (full ? toast.show('Your fridge is full, remove one first') : onAdd())}
+        >
+          <Icon name="plus" size={24} />
+        </button>
+        <button className="icon-btn" aria-label="Cancel" onClick={onCancel}>
+          <Icon name="back" size={24} />
+        </button>
+      </div>
+      <button className="text-btn top-right" onClick={onSave}>
+        Save
+      </button>
+
+      <motion.div
+        className="fav-fridge"
+        style={{ left, top: 160 }}
+        initial={{ scale: 0.6, opacity: 0.4 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 220, damping: 26 }}
+      >
+        <Fridge style={fridgeStyle} scale={ZOOM}>
+          <AnimatePresence>
+            {draft.map((date, i) => {
+              const poem = date ? poemFor(date) : undefined
+              const slot = SLOTS[i]!
+              if (!poem || !date) return null
+              const r = fittedRect(poem, slot, SLOT_SCALE, true) ?? slot
+              return (
+                <motion.div
+                  key={date}
+                  className="edit-slot"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.6, transition: { duration: 0.2 } }}
+                  style={{ transformOrigin: `${r.x + r.w / 2}px ${r.y + r.h / 2}px` }}
+                >
+                  <FitPoem poem={poem} box={slot} maxScale={SLOT_SCALE} wordsOnly />
+                  <motion.button
+                    className="remove-badge"
+                    style={{ left: r.x + r.w - 2, top: r.y - 13 }}
+                    aria-label="Remove from favourites"
+                    whileTap={{ scale: 0.85 }}
+                    onClick={() => onChange(draft.map((d, j) => (j === i ? null : d)))}
+                  >
+                    <Icon name="minus" size={12} />
+                  </motion.button>
+                </motion.div>
+              )
+            })}
+          </AnimatePresence>
+          {draft.map((date, i) => {
+            const slot = SLOTS[i]!
+            return date ? null : (
+              <button
+                key={`empty-${i}`}
+                className="empty-slot"
+                style={{ left: slot.x + slot.w / 2 - 14, top: slot.y + slot.h / 2 - 14 }}
+                aria-label="Add a favourite here"
+                onClick={onAdd}
+              >
+                <Icon name="plus" size={14} />
+              </button>
+            )
+          })}
+        </Fridge>
+      </motion.div>
+      {toast.node}
+    </div>
+  )
+}

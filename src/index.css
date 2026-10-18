@@ -621,3 +621,728 @@ button {
   background: linear-gradient(to bottom, rgba(27, 27, 27, 0), var(--black-3) 70%);
   pointer-events: none;
 }
+
+/* ---------- Shared screen chrome ---------- */
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  color: #000;
+}
+.icon-btn:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+/* the column of icons on the top left (share / edit / paint, Figma left 36 top 31, 8 apart) */
+.tool-column {
+  position: absolute;
+  left: 36px;
+  top: 31px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 20;
+}
+.tool-column--day .icon-btn:first-child {
+  margin-bottom: 21px;
+}
+
+.top-left {
+  position: absolute;
+  left: 36px;
+  top: 31px;
+  z-index: 20;
+}
+
+.top-right {
+  position: absolute;
+  right: 36px;
+  top: 29px;
+  z-index: 20;
+}
+
+.text-btn {
+  font-family: var(--font-ui);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  color: #000;
+}
+
+.day-screen .toast {
+  bottom: 182px;
+}
+.toast {
+  position: absolute;
+  left: 50%;
+  bottom: 40px;
+  z-index: 60;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--black-3);
+  color: #fff;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  white-space: nowrap;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+  pointer-events: none;
+}
+
+.poem-date {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 33px;
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: #71717a;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* ---------- Poem canvas (a saved poem drawn at its positions) ---------- */
+
+.poem-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+.poem-canvas__word,
+.poem-canvas__photo,
+.poem-canvas__sticker {
+  position: absolute;
+}
+.poem-canvas__photo {
+  height: auto;
+  filter: drop-shadow(1px 3px 5px rgba(0, 0, 0, 0.25));
+}
+.poem-canvas__sticker {
+  filter: drop-shadow(1px 3px 4px rgba(0, 0, 0, 0.2));
+}
+
+.poem-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  touch-action: pan-y;
+}
+
+/* ---------- Brushed steel backdrop ---------- */
+
+.steel-backdrop {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(98deg, #ebebeb 20%, #ffffff 41%, #efefef 68%, #b8b8b8 121%);
+}
+.steel-backdrop__texture {
+  position: absolute;
+  inset: 0;
+  opacity: 0.3;
+}
+.steel-backdrop__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(43, 43, 43, 0.15));
+}
+
+/* ---------- Fridge ---------- */
+
+.fridge {
+  position: relative;
+  flex: none;
+}
+.fridge__inner {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 268px;
+  height: 428px;
+  transform-origin: 0 0;
+}
+.fridge__door {
+  position: absolute;
+  left: 0;
+  width: 268px;
+  overflow: hidden;
+  border-radius: 4.4px 2.2px 2.2px 4.4px;
+  box-shadow:
+    inset 0 0 0 0.6px rgba(0, 0, 0, 0.08),
+    0 1px 2px rgba(0, 0, 0, 0.12);
+}
+.fridge__steel {
+  position: absolute;
+  inset: 0;
+  opacity: 0.3;
+}
+.fridge__strip {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 206px;
+  height: 16px;
+  background: linear-gradient(#dcdcdc, #b0b0b0);
+}
+.fridge__handle {
+  position: absolute;
+  left: 13px;
+  width: 11px;
+  border-radius: 6px 3px 3px 6px;
+  background: linear-gradient(90deg, #ffffff 10%, #f2f2f2 50%, #cfcfcf 100%);
+  box-shadow:
+    1.5px 2px 3px rgba(0, 0, 0, 0.18),
+    inset -1px 0 0 rgba(0, 0, 0, 0.06);
+}
+.fridge__foot {
+  position: absolute;
+  top: 418px;
+  width: 15px;
+  height: 10px;
+  background: linear-gradient(#595959, #646464);
+}
+.fridge__content {
+  position: absolute;
+  inset: 0;
+}
+
+.fridge--steel .fridge__door--top {
+  background: linear-gradient(98deg, #ebebeb 20%, rgba(255, 255, 255, 0.95) 41%, #efefef 68%, #b8b8b8 121%);
+}
+.fridge--steel .fridge__door--bottom {
+  background:
+    radial-gradient(ellipse at 30% 30%, #ffffff 0%, rgba(226, 226, 226, 0.35) 60%, transparent 100%),
+    linear-gradient(98deg, #e4e4e4 10%, #f4f4f4 40%, #e2e2e2 70%, #b4b4b4 120%);
+}
+
+.fridge--graphite .fridge__door {
+  background: linear-gradient(98deg, #8a8a8a 10%, #a5a5a5 40%, #8c8c8c 70%, #606060 120%);
+}
+.fridge--graphite .fridge__strip {
+  background: linear-gradient(#7b7b7b, #4f4f4f);
+}
+.fridge--graphite .fridge__handle {
+  background: linear-gradient(90deg, #d9d9d9 10%, #bdbdbd 50%, #8f8f8f 100%);
+}
+
+.fridge--butter .fridge__door--top {
+  border-radius: 20px 20px 3px 3px;
+  background: linear-gradient(100deg, #fff1b1 10%, #fff7d4 40%, #ffecb1 70%, #ffd18f 125%);
+}
+.fridge--butter .fridge__door--bottom {
+  border-radius: 3px 3px 8px 8px;
+  background: linear-gradient(100deg, #ffefb3 10%, #fff6d0 40%, #ffeab0 70%, #ffd18f 125%);
+}
+.fridge--butter .fridge__strip {
+  background: linear-gradient(#d8c68f, #c87d3b);
+}
+.fridge--butter .fridge__handle {
+  left: 22px;
+  width: 52px;
+  height: 9px !important;
+  border-radius: 5px;
+  background: linear-gradient(#f0dc94, #e2c877 40%, #b39e5b 70%, #a7802a);
+}
+.fridge--butter .fridge__handle:not(.fridge__handle--low) {
+  top: 180px !important;
+}
+.fridge--butter .fridge__handle--low {
+  top: 236px !important;
+}
+.fridge--butter .fridge__foot {
+  background: linear-gradient(#c9a25a, #a58930);
+}
+
+/* ---------- Favourites ---------- */
+
+.fav-fridge {
+  position: absolute;
+  z-index: 2;
+}
+.fav-slot {
+  position: absolute;
+  border-radius: 6px;
+}
+.fav-slot:active {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.edit-slot {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.remove-badge {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  display: grid;
+  place-items: center;
+  color: #000;
+  pointer-events: auto;
+}
+.remove-badge::before {
+  /* bigger hit area than the little badge */
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
+.empty-slot {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+/* ---------- Customize ---------- */
+
+.carousel {
+  position: absolute;
+  inset: 0;
+  touch-action: pan-y;
+}
+.carousel__item {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.carousel__controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.carousel__name {
+  margin: 0;
+  font-family: 'Patrick Hand', var(--font-ui);
+  font-size: 18px;
+  color: var(--black-4);
+}
+.carousel__arrows {
+  display: flex;
+  gap: 12px;
+}
+
+/* ---------- Share ---------- */
+
+.share-card {
+  position: absolute;
+  overflow: hidden;
+  border: 1px solid var(--fill-2);
+  border-radius: 6px;
+  background: var(--surface-1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+.share-card--steel {
+  background: var(--surface-1);
+}
+.share-card--enamel {
+  background: var(--fill-1);
+}
+.share-card--paper {
+  background: #fbfaf6;
+}
+.share-card__header {
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  top: 52px;
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Patrick Hand', var(--font-ui);
+  font-size: 8px;
+  color: #000;
+}
+.share-card__fridge {
+  position: absolute;
+  top: 82px;
+}
+.share-card--paper .share-card__fridge {
+  transform: rotate(-3deg);
+}
+.share-card__poem {
+  position: absolute;
+  inset: 0;
+}
+
+.share-templates {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 19px;
+}
+.share-template {
+  width: 33px;
+  height: 37px;
+  border-radius: 3px;
+  border: 1px solid var(--fill-2);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.share-template.is-on {
+  box-shadow: 0 0 0 1.5px var(--black-4);
+}
+.share-template--steel {
+  background: linear-gradient(98deg, #ebebeb 20%, #fff 41%, #efefef 68%, #b8b8b8 121%);
+}
+.share-template--enamel {
+  background: #e7e7e9;
+}
+.share-template--paper {
+  background: #fff;
+  transform: rotate(8deg);
+}
+
+.share-targets {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 18px;
+  padding: 0 40px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  touch-action: pan-x;
+}
+.share-targets::-webkit-scrollbar {
+  display: none;
+}
+.share-target {
+  flex: none;
+  width: 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #000;
+}
+.share-target .icon {
+  height: 34px !important;
+  display: grid;
+  place-items: center;
+}
+.share-target span:last-child {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: #52525b;
+}
+
+/* ---------- Calendar ---------- */
+
+.calendar {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  padding-bottom: 140px;
+  touch-action: pan-y;
+  scrollbar-width: none;
+}
+.calendar::-webkit-scrollbar {
+  display: none;
+}
+.month {
+  margin-bottom: 44px;
+}
+.month__title {
+  margin: 0 0 18px;
+  text-align: center;
+  font-family: 'Patrick Hand', var(--font-ui);
+  font-weight: 400;
+  font-size: 24px;
+  color: #000;
+}
+.month__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 44px);
+  grid-auto-rows: 45px;
+}
+.month__weekday {
+  display: grid;
+  place-items: center;
+  font-family: 'Patrick Hand', var(--font-ui);
+  font-size: 22px;
+  color: #000;
+  margin-bottom: 9px;
+}
+.month__day {
+  display: grid;
+  place-items: center;
+  color: #000;
+}
+.month__day.is-inert {
+  cursor: default;
+}
+.month__day.is-pinned {
+  opacity: 0.35;
+}
+.calendar__fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 116px;
+  background: linear-gradient(rgba(245, 247, 248, 0), var(--surface-2) 80%);
+  pointer-events: none;
+}
+.pick-hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 31px;
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-ui);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  z-index: 10;
+}
+
+.cal-tile {
+  position: relative;
+  display: grid;
+  place-items: center;
+  font-family: 'Patrick Hand', var(--font-ui);
+  color: #000;
+}
+.cal-tile svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.cal-tile--outside {
+  color: #8f8f96;
+}
+.cal-tile__num {
+  position: relative;
+  line-height: 1;
+  padding-top: 2px;
+}
+.cal-tile__circle {
+  position: absolute;
+  inset: 2px;
+  width: calc(100% - 4px) !important;
+  height: calc(100% - 4px) !important;
+}
+.cal-tile__depth {
+  fill: var(--surface-1);
+  stroke: #000;
+  stroke-width: 1.5;
+}
+.cal-tile__face {
+  fill: var(--surface-1);
+  stroke: #000;
+  stroke-width: 1.5;
+}
+.cal-tile__text {
+  font-family: 'Patrick Hand', var(--font-ui);
+  font-size: 16px;
+  fill: #000;
+}
+.cal-tile.is-selected .cal-tile__face,
+.cal-tile.is-selected .cal-tile__depth {
+  fill: var(--black-3);
+}
+.cal-tile.is-selected .cal-tile__depth {
+  fill: #444;
+}
+.cal-tile.is-selected .cal-tile__text {
+  fill: #fff;
+}
+.cal-tile--photo img {
+  height: auto;
+  border-radius: 1px;
+  filter: drop-shadow(0.5px 1px 1.5px rgba(0, 0, 0, 0.3));
+}
+
+/* ---------- Calendar day ---------- */
+
+.star-btn {
+  position: relative;
+}
+.star-btn .icon {
+  position: relative;
+}
+.star-btn__fill {
+  position: absolute;
+  inset: 1px;
+  fill: #f6c945;
+}
+
+.day-strip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 170px;
+  z-index: 6;
+  background: linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.92) 45%);
+}
+.day-strip__month {
+  margin: 30px 0 0;
+  text-align: center;
+  font-family: 'Patrick Hand', var(--font-ui);
+  font-size: 18px;
+  color: var(--black-4);
+}
+.day-strip__scroller {
+  display: flex;
+  gap: 14px;
+  padding: 8px 50%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  touch-action: pan-x;
+}
+.day-strip__scroller::-webkit-scrollbar {
+  display: none;
+}
+.day-strip__tile {
+  flex: none;
+}
+
+/* ---------- Settings (built from the onboarding pieces) ---------- */
+
+.settings {
+  touch-action: pan-y;
+}
+.settings__body {
+  position: absolute;
+  top: 214px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0 36px 40px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  user-select: auto;
+}
+.settings__body::-webkit-scrollbar {
+  display: none;
+}
+.settings__section {
+  margin-bottom: 20px;
+}
+.settings__label {
+  margin: 0 0 8px 2px;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 13px;
+  color: var(--fill-4);
+}
+.card {
+  background: var(--surface-1);
+  border: 1px solid var(--fill-2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 52px;
+  padding: 0 14px 0 16px;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  text-align: left;
+  color: var(--black-3);
+}
+.row + .row {
+  border-top: 1px solid var(--fill-1);
+}
+.row__label {
+  flex: 1;
+}
+.row__value {
+  color: var(--fill-4);
+  font-size: 14px;
+}
+.row__input {
+  width: 130px;
+  border: 0;
+  background: var(--fill-1);
+  border-radius: 4px;
+  padding: 7px 10px;
+  font-family: var(--font-magnet);
+  font-size: 19px;
+  line-height: 1;
+  color: var(--black-4);
+  text-align: right;
+  outline: none;
+}
+.row__input:focus {
+  box-shadow: 0 0 0 1.5px var(--black-4);
+}
+.row__hint {
+  margin: 0;
+  padding: 0 16px 12px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--fill-4);
+}
+.row--chips {
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 2px 14px 14px 16px;
+  min-height: 0;
+  border-top: 0 !important;
+}
+.chip {
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--fill-2);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--black-4);
+}
+.chip.is-on {
+  background: var(--black-3);
+  border-color: var(--black-3);
+  color: #fff;
+}
+.row--danger {
+  color: #b42318;
+}
+.toggle {
+  width: 44px;
+  height: 26px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--fill-2);
+  display: flex;
+  justify-content: flex-start;
+  transition: background 0.2s;
+}
+.toggle.is-on {
+  background: var(--black-3);
+  justify-content: flex-end;
+}
+.toggle__knob {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+.settings__note {
+  margin: 8px 0 0;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--fill-4);
+}

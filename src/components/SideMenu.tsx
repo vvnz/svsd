@@ -6,6 +6,7 @@ import { Icon, type IconName } from './Icon'
 // The pull-out tab on the right edge, Figma component "menu" (75:5317).
 // Closed, only the home tab peeks out. Tap it and the whole piece slides left,
 // revealing a panel with favourite, calendar, settings and share (Figma "Frame 200").
+// On those screens, their own button turns into a fridge icon that goes back to today's poem.
 
 // Outline from the Figma export: a tall panel on the right with the tab joined on its left side.
 const OUTLINE =
@@ -21,12 +22,13 @@ const TAB_CENTER_Y = 115.2
 const PANEL_CENTER_X = 103.4
 const ICON_TOPS = [25.25, 79.25, 133.25, 187.25] // 24px icons, 54px apart, as in Frame 200
 
-type Item = { id: string; icon: IconName; label: string }
+export type MenuId = 'favourite' | 'calendar' | 'settings' | 'share' | 'home'
+type Item = { id: MenuId; icon: IconName; label: string }
 
 const ITEMS: Item[] = [
   { id: 'favourite', icon: 'star', label: 'Favourites' },
   { id: 'calendar', icon: 'calendar', label: 'Calendar' },
-  { id: 'settings', icon: 'settings', label: 'Customize fridge' },
+  { id: 'settings', icon: 'settings', label: 'Settings' },
   { id: 'share', icon: 'share', label: 'Share' },
 ]
 
@@ -34,12 +36,14 @@ type Props = {
   screenWidth: number
   /** where the middle of the tab should sit, from the top of the screen */
   tabCenterY?: number
-  onSelect?: (id: string) => void
+  onSelect?: (id: MenuId) => void
+  /** the screen we're on: its button becomes a way back to today's fridge */
+  current?: MenuId
 }
 
 const SLIDE = { type: 'spring', stiffness: 420, damping: 34 } as const
 
-export function SideMenu({ screenWidth, tabCenterY = 151, onSelect }: Props) {
+export function SideMenu({ screenWidth, tabCenterY = 151, onSelect, current }: Props) {
   const [open, setOpen] = useState(false)
 
   // closed: only the tab shows, the panel is just past the right edge
@@ -92,7 +96,9 @@ export function SideMenu({ screenWidth, tabCenterY = 151, onSelect }: Props) {
           </motion.span>
         </button>
 
-        {ITEMS.map((item, i) => (
+        {ITEMS.map((it) =>
+          it.id === current ? ({ id: 'home', icon: 'fridge', label: "Today's fridge" } as Item) : it,
+        ).map((item, i) => (
           <motion.button
             key={item.id}
             className="side-menu__item"
@@ -105,7 +111,8 @@ export function SideMenu({ screenWidth, tabCenterY = 151, onSelect }: Props) {
             whileTap={{ scale: 0.9 }}
             onClick={() => {
               setOpen(false)
-              onSelect?.(item.id) // TODO: open favourites / calendar / customize / share screens
+              // let the panel start closing before the next screen slides in
+              window.setTimeout(() => onSelect?.(item.id), 140)
             }}
           >
             <Icon name={item.icon} size={24} />

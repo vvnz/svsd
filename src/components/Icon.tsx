@@ -17,6 +17,14 @@ import star from '../assets/icons/star.svg?raw'
 import calendar from '../assets/icons/calendar.svg?raw'
 import settings from '../assets/icons/settings.svg?raw'
 import share from '../assets/icons/share.svg?raw'
+import shareUp from '../assets/icons/share-up.svg?raw'
+import edit from '../assets/icons/edit.svg?raw'
+import paint from '../assets/icons/paint.svg?raw'
+import plus from '../assets/icons/plus.svg?raw'
+import minus from '../assets/icons/minus.svg?raw'
+import arrowRight from '../assets/icons/arrow-right.svg?raw'
+import chevronLeft from '../assets/icons/chevron-left.svg?raw'
+import download from '../assets/icons/download.svg?raw'
 
 const ICONS = {
   fridge,
@@ -36,6 +44,14 @@ const ICONS = {
   calendar,
   settings,
   share,
+  shareUp,
+  edit,
+  paint,
+  plus,
+  minus,
+  arrowRight,
+  chevronLeft,
+  download,
 }
 
 export type IconName = keyof typeof ICONS

@@ -2,7 +2,7 @@ import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 
 import { Icon } from '../components/Icon'
-import { SideMenu } from '../components/SideMenu'
+import { SideMenu, type MenuId } from '../components/SideMenu'
 import { ShaderEffect } from '../lib/custom-effect-runtime'
 import {
   setup as setupEnamel,
@@ -57,7 +57,7 @@ function findSpot(text: string, placed: PlacedMagnet[], area: Rect) {
   }
 }
 
-export function PoemScreen({ onBack }: { onBack: () => void }) {
+export function PoemScreen({ onBack, onMenu }: { onBack: () => void; onMenu: (id: MenuId) => void }) {
   const dateKey = todayKey()
   const words = useMemo(() => wordBankFor(dateKey), [dateKey])
   const { placed, dispatch } = useFridge(dateKey)
@@ -116,7 +116,7 @@ export function PoemScreen({ onBack }: { onBack: () => void }) {
         <Icon name="back" size={25} />
       </button>
 
-      <SideMenu screenWidth={size.width} />
+      <SideMenu screenWidth={size.width} onSelect={onMenu} />
 
       <AnimatePresence>
         {placed.length === 0 && snap === 'collapsed' && (
