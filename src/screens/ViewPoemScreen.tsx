@@ -22,7 +22,7 @@ export function ViewPoemScreen({ date, onShare, onBack }: Props) {
     <div className="screen" ref={ref}>
       <SteelBackdrop />
       <button className="icon-btn top-left" aria-label="Back" onClick={onBack}>
-        <Icon name="back" size={24} />
+        <Icon name="chevronLeft" size={24} />
       </button>
       <button className="icon-btn top-right" aria-label="Share this poem" onClick={onShare}>
         <Icon name="shareUp" size={24} />

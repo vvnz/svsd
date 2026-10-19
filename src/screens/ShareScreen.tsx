@@ -55,7 +55,7 @@ export function ShareScreen({ subject, onBack, onMenu }: Props) {
     <div className="screen" ref={ref}>
       {onBack ? (
         <button className="icon-btn top-left" aria-label="Back" onClick={onBack}>
-          <Icon name="back" size={24} />
+          <Icon name="chevronLeft" size={24} />
         </button>
       ) : (
         <SideMenu screenWidth={size.width} current="share" onSelect={onMenu} />

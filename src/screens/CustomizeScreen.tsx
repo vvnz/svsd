@@ -25,7 +25,7 @@ export function CustomizeScreen({ onBack, onSave }: Props) {
   return (
     <div className="screen" ref={ref}>
       <button className="icon-btn top-left" aria-label="Back" onClick={onBack}>
-        <Icon name="back" size={24} />
+        <Icon name="chevronLeft" size={24} />
       </button>
       <button
         className="text-btn top-right"
