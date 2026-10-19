@@ -5,7 +5,9 @@ import { FitPoem, fittedRect } from '../components/PoemCanvas'
 import { Icon } from '../components/Icon'
 import { useToast } from '../components/Toast'
 import { useApp } from '../state/appState'
+import { todayKey } from '../state/useFridge'
 import { useScreenSize } from '../state/useScreenSize'
+import { prettyDate } from './ViewPoemScreen'
 
 type Props = {
   draft: (string | null)[]
@@ -49,7 +51,7 @@ export function EditFavouritesScreen({ draft, onChange, onAdd, onCancel, onSave,
       </button>
       {swapIn && (
         <p className="swap-hint">
-          {swapping ? 'Pick one to swap for today\'s poem' : 'Swapped in! Tap Save to keep it'}
+          {swapping ? `Pick one to swap for ${swapIn === todayKey() ? "today's poem" : prettyDate(swapIn!, true)}` : 'Swapped in! Tap Save to keep it'}
         </p>
       )}
 

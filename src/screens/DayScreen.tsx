@@ -16,10 +16,12 @@ type Props = {
   onDate: (date: string) => void
   onBack: () => void
   onShare: (date: string) => void
+  /** starred this poem, but all 6 favourites are taken: pick one to swap out */
+  onFavouritesFull: (date: string) => void
 }
 
 // Figma calendar day view (54:3592): one day's poem, with a strip of day tiles to flip through.
-export function DayScreen({ date, onDate, onBack, onShare }: Props) {
+export function DayScreen({ date, onDate, onBack, onShare, onFavouritesFull }: Props) {
   const { poems, poemFor, favourites, toggleFavourite } = useApp()
   const [ref, size] = useScreenSize()
   const toast = useToast()
@@ -44,7 +46,7 @@ export function DayScreen({ date, onDate, onBack, onShare }: Props) {
 
   function star() {
     if (!pinned && !favourites.includes(null)) {
-      toast.show('Your fridge is full, swap one out first')
+      onFavouritesFull(date)
       return
     }
     toggleFavourite(date)

@@ -24,7 +24,8 @@ type Route =
   | { name: 'signin'; source: Source; from?: 'settings' }
   | { name: 'poem' }
   | { name: 'favourites' }
-  | { name: 'editFavourites'; draft: (string | null)[]; swapIn?: string } // swapIn: today's poem, waiting for a slot
+  // swapIn: a starred poem waiting for a slot on a full fridge; back: where to return after Save / Cancel
+  | { name: 'editFavourites'; draft: (string | null)[]; swapIn?: string; back?: Route }
   | { name: 'viewPoem'; date: string }
   | { name: 'customize'; from: 'favourites' | 'settings' }
   | { name: 'share'; subject: string; back?: Route }
@@ -138,7 +139,9 @@ function Screens() {
             )}
             {route.name === 'poem' && <PoemScreen
                 onMenu={menu}
-                onFavouritesFull={() => go({ name: 'editFavourites', draft: app.favourites, swapIn: todayKey() })}
+                onFavouritesFull={() =>
+                  go({ name: 'editFavourites', draft: app.favourites, swapIn: todayKey(), back: { name: 'poem' } })
+                }
               />}
 
             {route.name === 'favourites' && (
@@ -157,10 +160,10 @@ function Screens() {
                 onChange={(draft) => setRoute({ ...route, draft })}
                 onAdd={() => go({ name: 'calendar', pick: route.draft })}
                 // came from starring today's poem: go back there
-                onCancel={() => go({ name: route.swapIn ? 'poem' : 'favourites' }, -1)}
+                onCancel={() => go(route.back ?? { name: 'favourites' }, -1)}
                 onSave={() => {
                   app.setFavourites(route.draft)
-                  go({ name: route.swapIn ? 'poem' : 'favourites' }, -1)
+                  go(route.back ?? { name: 'favourites' }, -1)
                 }}
               />
             )}
@@ -202,6 +205,9 @@ function Screens() {
             {route.name === 'day' && (
               <DayScreen
                 date={route.date}
+                onFavouritesFull={(date) =>
+                  go({ name: 'editFavourites', draft: app.favourites, swapIn: date, back: { name: 'day', date } })
+                }
                 onDate={(date) => setRoute({ name: 'day', date })}
                 onBack={() => go({ name: 'calendar' }, -1)}
                 onShare={(date) => go({ name: 'share', subject: date, back: { name: 'day', date } })}
