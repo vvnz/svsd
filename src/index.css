@@ -99,20 +99,13 @@ button {
   color: #000;
 }
 
-.subtitle {
-  margin: 0;
-  font-family: var(--font-body);
-  font-size: 15px;
-  line-height: normal;
-  color: var(--fill-4);
-}
-
-/* Full-width bottom button, Figma "Button" (330 wide, 770 from top) */
+/* Full-width bottom button, Figma "Button" (18:366): 330 wide, 52 from the bottom */
 .cta {
   position: absolute;
-  left: 50%;
-  bottom: 53px;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
+  bottom: 52px;
+  margin: 0 auto;
   width: min(330px, calc(100% - 72px));
   display: flex;
   align-items: center;
@@ -139,7 +132,6 @@ button {
   cursor: default;
 }
 .cta:focus-visible,
-.source:focus-visible,
 .icon-btn:focus-visible,
 .home-tab:focus-visible,
 .tab:focus-visible {
@@ -166,142 +158,26 @@ button {
   text-align: center;
 }
 
-/* ---------- Onboarding (connect + sign in) ---------- */
+/* ---------- Privacy onboarding (after the splash) ----------
+   Design system like Settings: text + colour styles, 4px spacing. */
 
-.onboard {
-  touch-action: auto;
+.privacy {
+  touch-action: pan-y;
 }
-
-.onboard__header {
+/* scrolls on short screens; leaves room for the button pinned at the bottom */
+.privacy__scroll {
   position: absolute;
-  top: 70px;
-  left: 0;
-  right: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  text-align: center;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  padding-bottom: 128px;
 }
-
-.sources {
-  position: absolute;
-  top: 275px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: grid;
-  grid-template-columns: repeat(3, 63px);
-  column-gap: 26px;
-  row-gap: 35px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.privacy__scroll::-webkit-scrollbar {
+  display: none;
 }
-
-.source {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 9px;
-  width: 63px;
-}
-
-.source__icon {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 43px;
-  height: 43px;
-  color: #000;
-  transition: transform 0.15s;
-}
-.source:active .source__icon {
-  transform: scale(0.92);
-}
-
-.source__check {
-  position: absolute;
-  right: -5px;
-  bottom: -3px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--black-3);
-  box-shadow: 0 0 0 2px var(--surface-2);
-}
-.source__check::after {
-  content: '';
-  position: absolute;
-  left: 4.5px;
-  top: 2.5px;
-  width: 3px;
-  height: 6px;
-  border: solid #fff;
-  border-width: 0 1.6px 1.6px 0;
-  transform: rotate(45deg);
-}
-
-.source__name {
-  font-size: 13px;
-  line-height: normal;
-  color: #52525b;
-}
-.source--on .source__name {
-  color: var(--black-3);
-}
-
-.signin__back {
-  position: absolute;
-  left: 33px;
-  top: 52px;
-  width: 24px;
-  height: 24px;
-  display: grid;
-  place-items: center;
-  z-index: 2;
-}
-
-.signin__tile {
-  position: absolute;
-  left: 50%;
-  top: calc(50% - 148.5px);
-  width: 119px;
-  height: 119px;
-  margin: -59.5px 0 0 -59.5px;
-  display: grid;
-  place-items: center;
-  background: var(--surface-1);
-  border: 1px solid var(--fill-2);
-  border-radius: 8px;
-  color: #000;
-}
-
-.signin__done {
-  position: absolute;
-  right: -10px;
-  top: -10px;
-  width: 30px;
-  height: 30px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--black-3);
-  color: #fff;
-  box-shadow: 0 0 0 3px var(--surface-2);
-}
-
-.signin__note {
-  position: absolute;
-  left: 50%;
-  top: 437px;
-  transform: translateX(-50%);
-  width: 246px;
-  margin: 0;
-  font-family: var(--font-body);
-  font-size: 15px;
-  line-height: normal;
-  color: var(--fill-4);
-  text-align: center;
+.privacy__body {
+  padding: 48px 36px 0;
 }
 
 /* ---------- Poem screen ---------- */
