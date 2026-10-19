@@ -172,7 +172,7 @@ export function MagnetDrawer({
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         exit={{ scale: 0 }}
-                        transition={{ type: 'spring', stiffness: 600, damping: 20 }}
+                        transition={{ duration: 0.16, ease: 'easeOut' }}
                         aria-label={`${count} in the pile`}
                       >
                         {count}
