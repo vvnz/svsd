@@ -92,6 +92,8 @@ shadow `1px 2px 4.8px rgba(0,0,0,.25), 1px 1px 0 rgba(47,47,47,.6)`.
 - Where personal words come from is **undecided**. Reading messaging apps isn't possible
   (iMessage/Instagram/etc. don't allow it), so don't build integrations; keep sample words.
 - Favorites fridge has 6 slots. Favourites show only a poem's words (photo days show their photo).
+- Star today's poem (top right of the poem page) to pin it. If all 6 slots are taken, Edit Favourites opens in
+  swap mode: tap a poem's badge to swap it for today's, then Save (or Cancel) goes back to today's poem.
 
 ## Team workflow
 

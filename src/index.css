@@ -777,6 +777,11 @@ button {
   color: #000;
 }
 
+/* the bottom of today's poem holds the drawer bar and the pile, so toasts sit under the top icons */
+.poem-screen .toast {
+  top: 76px;
+  bottom: auto;
+}
 .day-screen .toast {
   bottom: 182px;
 }
@@ -1280,6 +1285,11 @@ button {
 .star-btn {
   position: relative;
 }
+/* today's poem: in the top right corner, like Save on other screens */
+.star-btn.top-right {
+  position: absolute;
+  top: 31px;
+}
 .star-btn .icon {
   position: relative;
 }
@@ -1287,6 +1297,22 @@ button {
   position: absolute;
   inset: 1px;
   fill: #f6c945;
+}
+
+/* Edit Favourites, opened from starring today's poem on a full fridge.
+   Figma text style "body": DM Sans Regular 16 */
+.swap-hint {
+  position: absolute;
+  top: 112px; /* centred in the gap between the top icons and the fridge */
+  left: 36px;
+  right: 36px;
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
+  color: var(--black-3);
 }
 
 .day-strip {

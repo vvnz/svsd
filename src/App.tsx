@@ -24,7 +24,7 @@ type Route =
   | { name: 'signin'; source: Source; from?: 'settings' }
   | { name: 'poem' }
   | { name: 'favourites' }
-  | { name: 'editFavourites'; draft: (string | null)[] }
+  | { name: 'editFavourites'; draft: (string | null)[]; swapIn?: string } // swapIn: today's poem, waiting for a slot
   | { name: 'viewPoem'; date: string }
   | { name: 'customize'; from: 'favourites' | 'settings' }
   | { name: 'share'; subject: string; back?: Route }
@@ -136,7 +136,10 @@ function Screens() {
                 onConnected={(s) => markConnected(s, route.from)}
               />
             )}
-            {route.name === 'poem' && <PoemScreen onMenu={menu} />}
+            {route.name === 'poem' && <PoemScreen
+                onMenu={menu}
+                onFavouritesFull={() => go({ name: 'editFavourites', draft: app.favourites, swapIn: todayKey() })}
+              />}
 
             {route.name === 'favourites' && (
               <FavouritesScreen
@@ -150,12 +153,14 @@ function Screens() {
             {route.name === 'editFavourites' && (
               <EditFavouritesScreen
                 draft={route.draft}
-                onChange={(draft) => setRoute({ name: 'editFavourites', draft })}
+                swapIn={route.swapIn}
+                onChange={(draft) => setRoute({ ...route, draft })}
                 onAdd={() => go({ name: 'calendar', pick: route.draft })}
-                onCancel={() => go({ name: 'favourites' }, -1)}
+                // came from starring today's poem: go back there
+                onCancel={() => go({ name: route.swapIn ? 'poem' : 'favourites' }, -1)}
                 onSave={() => {
                   app.setFavourites(route.draft)
-                  go({ name: 'favourites' }, -1)
+                  go({ name: route.swapIn ? 'poem' : 'favourites' }, -1)
                 }}
               />
             )}

@@ -13,6 +13,9 @@ import { FridgeMagnet, randomTilt } from '../components/FridgeMagnet'
 import { Magnet } from '../components/Magnet'
 import { MagnetDrawer, drawerTop, type DrawerSnap } from '../components/MagnetDrawer'
 import { MagnetPile } from '../components/MagnetPile'
+import { StarButton } from '../components/StarButton'
+import { useToast } from '../components/Toast'
+import { useApp } from '../state/appState'
 import { wordBankFor, type BankWord } from '../data/wordBank'
 import { newMagnetId, todayKey, useFridge } from '../state/useFridge'
 
@@ -56,10 +59,19 @@ function scatterSpot(text: string, taken: Rect[], area: Rect) {
   return random()
 }
 
-export function PoemScreen({ onMenu }: { onMenu: (id: MenuId) => void }) {
+type Props = {
+  onMenu: (id: MenuId) => void
+  /** starred today's poem, but all 6 favourites are taken: pick one to swap out */
+  onFavouritesFull: () => void
+}
+
+export function PoemScreen({ onMenu, onFavouritesFull }: Props) {
   const dateKey = todayKey()
   const words = useMemo(() => wordBankFor(dateKey), [dateKey])
   const { placed, pile, canUndo, dispatch } = useFridge(dateKey)
+  const { favourites, toggleFavourite, refreshToday } = useApp()
+  const toast = useToast()
+  const pinned = favourites.includes(dateKey)
 
   const screenRef = useRef<HTMLDivElement>(null)
   const [size, setSize] = useState({ width: 402, height: 874 })
@@ -186,6 +198,28 @@ export function PoemScreen({ onMenu }: { onMenu: (id: MenuId) => void }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [held, snap, size])
 
+  // Star today's poem to pin it to the favourites fridge.
+  function star() {
+    if (pinned) {
+      toggleFavourite(dateKey)
+      toast.show('Taken off your favourites')
+      return
+    }
+    if (!placed.length) {
+      toast.show('Add some words to your poem first')
+      return
+    }
+    // make sure favourites sees what's on the fridge right now
+    refreshToday()
+    if (!favourites.includes(null)) {
+      onFavouritesFull()
+      return
+    }
+    toggleFavourite(dateKey)
+    navigator.vibrate?.(10)
+    toast.show('Pinned to your favourites')
+  }
+
   // the drawer pulls down so the whole fridge is in view while deleting
   function openDeleteMode() {
     setSnap('collapsed')
@@ -204,7 +238,7 @@ export function PoemScreen({ onMenu }: { onMenu: (id: MenuId) => void }) {
   }
 
   return (
-    <div className="screen" ref={screenRef}>
+    <div className="screen poem-screen" ref={screenRef}>
       <ShaderEffect className="surface" shaders={ENAMEL_SHADERS}>
         <div className="surface__fill" />
       </ShaderEffect>
@@ -223,6 +257,8 @@ export function PoemScreen({ onMenu }: { onMenu: (id: MenuId) => void }) {
       >
         <Icon name="undo" size={25} />
       </motion.button>
+
+      <StarButton pinned={pinned} onClick={star} className="top-right" />
 
       <SideMenu screenWidth={size.width} onSelect={onMenu} />
 
@@ -321,6 +357,7 @@ export function PoemScreen({ onMenu }: { onMenu: (id: MenuId) => void }) {
         onPick={collect}
         onHold={hold}
       />
+      {toast.node}
 
       {/* the word being dragged out of the drawer, a little above the finger so it stays visible */}
       <AnimatePresence>

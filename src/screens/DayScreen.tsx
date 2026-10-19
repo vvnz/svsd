@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { CalendarTile, tiltFor } from '../components/CalendarTile'
 import { FitPoem } from '../components/PoemCanvas'
 import { Icon } from '../components/Icon'
+import { StarButton } from '../components/StarButton'
 import { SteelBackdrop } from '../components/SteelBackdrop'
 import { useToast } from '../components/Toast'
 import { useApp } from '../state/appState'
@@ -63,18 +64,7 @@ export function DayScreen({ date, onDate, onBack, onShare }: Props) {
         <button className="icon-btn" aria-label="Share this poem" onClick={() => onShare(date)}>
           <Icon name="shareUp" size={24} />
         </button>
-        <motion.button
-          className={`icon-btn star-btn ${pinned ? 'is-on' : ''}`}
-          aria-label={pinned ? 'Remove from favourites' : 'Add to favourites'}
-          aria-pressed={pinned}
-          onClick={star}
-          whileTap={{ scale: 0.8 }}
-        >
-          <motion.svg viewBox="0 0 24 24" className="star-btn__fill" initial={false} animate={{ scale: pinned ? 1 : 0 }}>
-            <path d="M12 3.2l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.5l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z" />
-          </motion.svg>
-          <Icon name="star" size={24} />
-        </motion.button>
+        <StarButton pinned={pinned} onClick={star} />
       </div>
       <p className="poem-date">{prettyDate(date)}</p>
 

@@ -13,17 +13,20 @@ type Props = {
   onAdd: () => void
   onCancel: () => void
   onSave: () => void
+  /** a poem waiting to go on a full fridge: tapping a poem's badge swaps it for this one */
+  swapIn?: string
 }
 
 // Figma "Fridge - Edit Favourites" (43:370): the fridge zooms in and every poem gets a remove badge.
 // Changes stay a draft until Save.
 const ZOOM = 1.5
 
-export function EditFavouritesScreen({ draft, onChange, onAdd, onCancel, onSave }: Props) {
+export function EditFavouritesScreen({ draft, onChange, onAdd, onCancel, onSave, swapIn }: Props) {
   const { fridgeStyle, poemFor } = useApp()
   const [ref, size] = useScreenSize()
   const toast = useToast()
   const full = !draft.includes(null)
+  const swapping = !!swapIn && !draft.includes(swapIn)
   // the zoomed fridge fills the width, so the handle and every badge stay in view
   const left = Math.round((size.width - 268 * ZOOM) / 2)
 
@@ -44,6 +47,11 @@ export function EditFavouritesScreen({ draft, onChange, onAdd, onCancel, onSave 
       <button className="text-btn top-right" onClick={onSave}>
         Save
       </button>
+      {swapIn && (
+        <p className="swap-hint">
+          {swapping ? 'Pick one to swap for today\'s poem' : 'Swapped in! Tap Save to keep it'}
+        </p>
+      )}
 
       <motion.div
         className="fav-fridge"
@@ -72,9 +80,10 @@ export function EditFavouritesScreen({ draft, onChange, onAdd, onCancel, onSave 
                   <motion.button
                     className="remove-badge"
                     style={{ left: r.x + r.w - 2, top: r.y - 13 }}
-                    aria-label="Remove from favourites"
+                    aria-label={swapping ? "Swap this for today's poem" : 'Remove from favourites'}
                     whileTap={{ scale: 0.85 }}
-                    onClick={() => onChange(draft.map((d, j) => (j === i ? null : d)))}
+                    // swapping: today's poem takes this slot; otherwise the slot just empties
+                    onClick={() => onChange(draft.map((d, j) => (j === i ? (swapping ? swapIn! : null) : d)))}
                   >
                     <Icon name="minus" size={12} />
                   </motion.button>
