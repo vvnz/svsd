@@ -66,7 +66,9 @@ shadow `1px 2px 4.8px rgba(0,0,0,.25), 1px 1px 0 rgba(47,47,47,.6)`.
   the favourites fridge flow. Edits are a draft until Save; the + opens the calendar in pick mode
 - `src/screens/CalendarScreen.tsx`, `DayScreen.tsx` month list of day tiles, and one day's poem with a tile strip
 - `src/screens/ShareScreen.tsx` story card + templates + targets. Sending is **simulated** (toasts)
-- `src/screens/SettingsScreen.tsx` not in Figma; built from the onboarding pieces. Reminders are **simulated**
+- `src/screens/SettingsScreen.tsx` not in Figma; built on the design system (text + colour styles, 4px spacing). Whole page scrolls. Reminders are **simulated**
+- `src/components/PrivacyOptions.tsx` the privacy choices (photos / location / music apps), shared by Settings and
+  onboarding. Options from the Figma note 75:5378. Saved in `appState` as `privacy`; **simulated**, nothing is read
 - `src/components/Fridge.tsx` the fridge drawing (steel / graphite / butter) and the 6 favourite `SLOTS`
 - `src/components/PoemCanvas.tsx` draws a saved poem at its page coordinates; `FitPoem` shrinks one into a box
 - `src/components/CalendarTile.tsx`, `SteelBackdrop.tsx`, `Toast.tsx` small shared pieces

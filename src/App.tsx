@@ -215,10 +215,8 @@ function Screens() {
             )}
             {route.name === 'settings' && (
               <SettingsScreen
-                connectedCount={connected.size}
                 onMenu={menu}
                 onCustomize={() => go({ name: 'customize', from: 'settings' })}
-                onConnect={() => go({ name: 'connect', from: 'settings' })}
                 onClearToday={() => {
                   try {
                     localStorage.removeItem(`svsd:fridge:${todayKey()}`)
