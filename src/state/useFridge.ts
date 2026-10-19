@@ -51,7 +51,8 @@ function apply(f: Fridge, action: Exclude<Action, { type: 'undo' }>): Fridge {
       if (!f.placed.some((m) => m.id === action.id)) return f
       return { ...f, placed: f.placed.filter((m) => m.id !== action.id) }
     case 'clear':
-      return f.placed.length || f.pile.length ? { placed: [], pile: [] } : f
+      // Delete Mode's "Clear fridge": the pile isn't on the fridge yet, so it stays
+      return f.placed.length ? { ...f, placed: [] } : f
   }
 }
 

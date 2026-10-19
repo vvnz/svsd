@@ -423,6 +423,61 @@ button {
   pointer-events: none;
 }
 
+/* ---------- Delete Mode ---------- */
+
+/* Figma 88:5505: #1B1B1B at 40% over everything except the magnets */
+.delete-mode__dim {
+  position: absolute;
+  inset: 0;
+  z-index: 35;
+  background: rgba(27, 27, 27, 0.4);
+  cursor: default;
+}
+
+.delete-mode__hint {
+  position: absolute;
+  top: 30px;
+  left: 0;
+  right: 0;
+  z-index: 41;
+  margin: 0;
+  text-align: center;
+  pointer-events: none;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: #fff;
+}
+.delete-mode__hint span {
+  font-size: 12px;
+  font-weight: 400;
+  opacity: 0.75;
+}
+
+@keyframes wiggle {
+  0%,
+  100% {
+    rotate: 0deg;
+  }
+  25% {
+    rotate: -1.6deg;
+  }
+  75% {
+    rotate: 1.6deg;
+  }
+}
+.wiggle {
+  animation: wiggle 0.32s ease-in-out infinite;
+}
+
+/* just above the closed drawer bar (80px) */
+.delete-mode__clear {
+  z-index: 41;
+  bottom: 100px;
+  transform: none;
+}
+
 .fridge-magnet {
   position: absolute;
   left: 0;

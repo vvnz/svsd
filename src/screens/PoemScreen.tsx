@@ -65,6 +65,9 @@ export function PoemScreen({ onMenu }: { onMenu: (id: MenuId) => void }) {
   const [snap, setSnap] = useState<DrawerSnap>('collapsed')
   const [dragging, setDragging] = useState(false)
   const [overDrawer, setOverDrawer] = useState(false)
+  // Figma "Poem - Delete Mode" (88:5505): long press a magnet; it ends on its own once the fridge is empty
+  const [deleteModeOn, setDeleteMode] = useState(false)
+  const deleteMode = deleteModeOn && placed.length > 0
   const spawnFrom = useRef(new Map<string, { x: number; y: number }>())
   const spawnDelay = useRef(new Map<string, number>())
   const pileSpawn = useRef(new Map<string, { x: number; y: number }>())
@@ -126,6 +129,17 @@ export function PoemScreen({ onMenu }: { onMenu: (id: MenuId) => void }) {
     navigator.vibrate?.([6, 30, 6])
   }
 
+  function deleteMagnet(id: string) {
+    dispatch({ type: 'remove', id })
+    if (placed.length <= 1) setDeleteMode(false)
+  }
+
+  function clearFridge() {
+    dispatch({ type: 'clear' })
+    setDeleteMode(false)
+    navigator.vibrate?.([10, 40, 10])
+  }
+
   return (
     <div className="screen" ref={screenRef}>
       <ShaderEffect className="surface" shaders={ENAMEL_SHADERS}>
@@ -164,8 +178,52 @@ export function PoemScreen({ onMenu }: { onMenu: (id: MenuId) => void }) {
         )}
       </AnimatePresence>
 
-      {/* while a magnet is dragged it rides above the drawer, so it can be dropped there to remove */}
-      <div className="magnets" style={{ zIndex: dragging ? 30 : 10 }}>
+      {/* Delete Mode dims everything but the magnets; tap the dim layer to finish */}
+      <AnimatePresence>
+        {deleteMode && (
+          <>
+            <motion.button
+              key="dim"
+              className="delete-mode__dim"
+              aria-label="Done deleting"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setDeleteMode(false)}
+            />
+            <motion.p
+              key="hint"
+              className="delete-mode__hint"
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.2 }}
+            >
+              Tap a magnet to remove it
+              <br />
+              <span>Tap anywhere else when you're done</span>
+            </motion.p>
+            <motion.button
+              key="clear"
+              className="cta cta--light delete-mode__clear"
+              style={{ x: '-50%' }}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 12 }}
+              transition={{ duration: 0.2 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={clearFridge}
+            >
+              Clear fridge
+            </motion.button>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* while a magnet is dragged it rides above the drawer, so it can be dropped there to remove;
+          in Delete Mode the magnets sit above the dim layer */}
+      <div className="magnets" style={{ zIndex: deleteMode ? 40 : dragging ? 30 : 10 }}>
         <AnimatePresence>
           {placed.map((m) => (
             <FridgeMagnet
@@ -174,6 +232,9 @@ export function PoemScreen({ onMenu }: { onMenu: (id: MenuId) => void }) {
               spawnFrom={spawnFrom.current.get(m.id)}
               spawnDelay={spawnDelay.current.get(m.id)}
               bounds={size}
+              deleteMode={deleteMode}
+              onLongPress={() => setDeleteMode(true)}
+              onDelete={deleteMagnet}
               onDragStateChange={(isDragging, pageY) => {
                 setDragging(isDragging)
                 setOverDrawer(isDragging && pageY !== undefined && isOverDrawer(pageY))

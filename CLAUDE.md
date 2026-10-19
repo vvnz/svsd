@@ -87,6 +87,8 @@ shadow `1px 2px 4.8px rgba(0,0,0,.25), 1px 1px 0 rgba(47,47,47,.6)`.
 - Tap to collect (Figma section "Tap to Collect Interaction", 158:4883): tapping a word in the bank drops a copy
   into a pile at the bottom of the screen (the bank word shows a count badge); tap the pile to scatter them all
   onto the fridge. Drag magnets to rearrange; drag one onto the drawer to remove it. Undo steps back through all of it.
+- Delete Mode (Figma 88:5505): long press a magnet; everything but the magnets dims and they wiggle. Tap a magnet to
+  delete it, "Clear fridge" removes them all (the pile stays), tap the dim layer to finish. Undo brings them back.
 - Where personal words come from is **undecided**. Reading messaging apps isn't possible
   (iMessage/Instagram/etc. don't allow it), so don't build integrations; keep sample words.
 - Favorites fridge has 6 slots. Favourites show only a poem's words (photo days show their photo).
