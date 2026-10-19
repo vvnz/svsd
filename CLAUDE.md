@@ -59,9 +59,9 @@ shadow `1px 2px 4.8px rgba(0,0,0,.25), 1px 1px 0 rgba(47,47,47,.6)`.
 - `src/components/Icon.tsx` + `src/assets/icons/` the hand-drawn icons, exported from Figma as SVG
   (they draw in `currentColor`)
 - `src/components/MagnetDrawer.tsx` the "Add Magnets" bottom sheet (collapsed / half / full)
-- `src/components/SideMenu.tsx` the pull-out home tab on the right edge (Figma component "menu",
-  75:5317). Star → favourites, calendar → calendar, settings → settings, share → share. On those screens
-  their own button turns into a fridge icon that goes back to today's poem
+- `src/components/SideMenu.tsx` the pull-out tab on the right edge (Figma component set "Menu",
+  88:5593). The tab shows the screen you're on (poem, fridge, calendar, settings); the panel holds the
+  other three. Share isn't in the menu; it's reached from the favourites fridge
 - `src/screens/FavouritesScreen.tsx`, `EditFavouritesScreen.tsx`, `ViewPoemScreen.tsx`, `CustomizeScreen.tsx`
   the favourites fridge flow. Edits are a draft until Save; the + opens the calendar in pick mode
 - `src/screens/CalendarScreen.tsx`, `DayScreen.tsx` month list of day tiles, and one day's poem with a tile strip
