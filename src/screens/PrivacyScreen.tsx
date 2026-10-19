@@ -12,8 +12,8 @@ export function PrivacyScreen({ onDone }: Props) {
     <div className="screen privacy">
       <div className="privacy__scroll">
         <header className="settings__header">
-          <h1 className="title">your privacy</h1>
-          <p className="settings__subtitle">choose what your fridge can learn from</p>
+          <h1 className="title">word bank</h1>
+          <p className="settings__subtitle">choose what your poems will be inspired by</p>
         </header>
 
         <motion.div
@@ -22,9 +22,7 @@ export function PrivacyScreen({ onDone }: Props) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: 'spring', stiffness: 260, damping: 28, delay: 0.1 }}
         >
-          <div className="card">
-            <PrivacyOptions />
-          </div>
+          <PrivacyOptions sections />
           <p className="settings__note">you can change these anytime in settings</p>
         </motion.div>
       </div>

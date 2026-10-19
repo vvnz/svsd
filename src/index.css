@@ -179,6 +179,17 @@ button {
 .privacy__body {
   padding: 48px 36px 0;
 }
+/* one card per choice (photos, location, music), each led by its icon */
+.privacy__section + .privacy__section {
+  margin-top: 12px;
+}
+.privacy__section .row {
+  min-height: 56px;
+}
+.row__icon {
+  flex-shrink: 0;
+  color: var(--black-3);
+}
 
 /* ---------- Poem screen ---------- */
 

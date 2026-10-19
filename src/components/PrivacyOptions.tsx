@@ -1,3 +1,6 @@
+import type { ReactNode } from 'react'
+
+import { Icon, type IconName } from './Icon'
 import { Toggle } from './Toggle'
 import { useApp, type Privacy } from '../state/appState'
 
@@ -21,42 +24,65 @@ export const LOCATION_OPTIONS: Option<Privacy['location']>[] = [
 
 export const MUSIC_HINT = "words from what you've been listening to"
 
-/** The privacy rows, inside a settings card. */
-export function PrivacyOptions() {
+/**
+ * The privacy rows. Default: plain rows inside a settings card.
+ * `sections`: each choice in its own card with its icon (privacy onboarding).
+ */
+export function PrivacyOptions({ sections = false }: { sections?: boolean }) {
   const { privacy, updatePrivacy } = useApp()
+  const Group = sections ? SectionCard : Plain
 
   return (
     <>
-      <Choice
-        label="photos"
-        options={PHOTO_OPTIONS}
-        value={privacy.photos}
-        onChange={(photos) => updatePrivacy({ photos })}
-      />
-      <Choice
-        label="location"
-        options={LOCATION_OPTIONS}
-        value={privacy.location}
-        // location from photos needs photos
-        disabled={privacy.photos === 'off' ? ['photos'] : []}
-        onChange={(location) => updatePrivacy({ location })}
-      />
-      <div className="row">
-        <span className="row__label">music apps</span>
-        <Toggle label="music apps" on={privacy.music} onChange={(music) => updatePrivacy({ music })} />
-      </div>
-      <p className="row__hint">{privacy.music ? MUSIC_HINT : 'no music apps are used'}</p>
+      <Group>
+        <Choice
+          icon={sections ? 'photo' : undefined}
+          label="photos"
+          options={PHOTO_OPTIONS}
+          value={privacy.photos}
+          onChange={(photos) => updatePrivacy({ photos })}
+        />
+      </Group>
+      <Group>
+        <Choice
+          icon={sections ? 'location' : undefined}
+          label="location"
+          options={LOCATION_OPTIONS}
+          value={privacy.location}
+          // location from photos needs photos
+          disabled={privacy.photos === 'off' ? ['photos'] : []}
+          onChange={(location) => updatePrivacy({ location })}
+        />
+      </Group>
+      <Group>
+        <div className="row">
+          {sections && <Icon name="music" size={24} className="row__icon" />}
+          <span className="row__label">music apps</span>
+          <Toggle label="music apps" on={privacy.music} onChange={(music) => updatePrivacy({ music })} />
+        </div>
+        <p className="row__hint">{privacy.music ? MUSIC_HINT : 'no music apps are used'}</p>
+      </Group>
     </>
   )
 }
 
+function Plain({ children }: { children: ReactNode }) {
+  return <>{children}</>
+}
+
+function SectionCard({ children }: { children: ReactNode }) {
+  return <div className="card privacy__section">{children}</div>
+}
+
 function Choice<T extends string>({
+  icon,
   label,
   options,
   value,
   disabled = [],
   onChange,
 }: {
+  icon?: IconName
   label: string
   options: Option<T>[]
   value: T
@@ -67,6 +93,7 @@ function Choice<T extends string>({
   return (
     <>
       <div className="row">
+        {icon && <Icon name={icon} size={24} className="row__icon" />}
         <span className="row__label">{label}</span>
       </div>
       <div className="row row--chips" role="radiogroup" aria-label={label}>
