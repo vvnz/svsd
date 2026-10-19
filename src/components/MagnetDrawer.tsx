@@ -18,6 +18,19 @@ type Props = {
   pileCounts: Map<string, number>
   removeHint: boolean
   onPick: (word: BankWord, rect: DOMRect) => void
+  /** a word was held long enough to drag it out onto the fridge; the screen takes over from here */
+  onHold: (word: BankWord, point: { x: number; y: number }) => void
+}
+
+// Long enough that a normal swipe through the words scrolls instead of grabbing one.
+const HOLD_MS = 350
+const HOLD_SLOP = 8 // px the finger may wander during the hold before it counts as a scroll
+
+// Figma lays each row of three out with equal gaps between them (space-between).
+function rowsOf<T>(items: T[], n: number): T[][] {
+  const rows: T[][] = []
+  for (let i = 0; i < items.length; i += n) rows.push(items.slice(i, i + n))
+  return rows
 }
 
 // Where the top edge of the drawer sits for each snap point.
@@ -38,6 +51,7 @@ export function MagnetDrawer({
   pileCounts,
   removeHint,
   onPick,
+  onHold,
 }: Props) {
   const [tab, setTab] = useState<Tab>('words')
   const y = useMotionValue(drawerTop(snap, screenHeight))
@@ -47,6 +61,60 @@ export function MagnetDrawer({
   const contentOpacity = useTransform(y, [collapsedTop, collapsedTop - 60], [0, 1])
   const dragControls = useDragControls()
   const draggedRef = useRef(false)
+  const bodyRef = useRef<HTMLDivElement>(null)
+  const hold = useRef<{ timer: number; x: number; y: number } | null>(null)
+  // true from the moment a word is grabbed until the finger lifts
+  const grabbing = useRef(false)
+  // the click that ends a grab shouldn't also collect the word
+  const skipClick = useRef(false)
+
+  // Once a word is grabbed, stop the list from scrolling under the finger.
+  // (Has to be a non-passive listener that's already there when the touch starts.)
+  useEffect(() => {
+    const el = bodyRef.current
+    if (!el) return
+    const block = (e: TouchEvent) => {
+      if (grabbing.current) e.preventDefault()
+    }
+    el.addEventListener('touchmove', block, { passive: false })
+    return () => el.removeEventListener('touchmove', block)
+  }, [])
+
+  useEffect(() => {
+    const end = () => {
+      if (hold.current) window.clearTimeout(hold.current.timer)
+      hold.current = null
+      grabbing.current = false
+    }
+    window.addEventListener('pointerup', end)
+    window.addEventListener('pointercancel', end)
+    return () => {
+      end()
+      window.removeEventListener('pointerup', end)
+      window.removeEventListener('pointercancel', end)
+    }
+  }, [])
+
+  function startHold(w: BankWord, e: ReactPointerEvent) {
+    if (hold.current) window.clearTimeout(hold.current.timer)
+    const point = { x: e.clientX, y: e.clientY }
+    const timer = window.setTimeout(() => {
+      hold.current = null
+      grabbing.current = true
+      skipClick.current = true
+      navigator.vibrate?.(12)
+      onHold(w, point)
+    }, HOLD_MS)
+    hold.current = { timer, ...point }
+  }
+
+  function moveHold(e: ReactPointerEvent) {
+    const h = hold.current
+    if (h && Math.hypot(e.clientX - h.x, e.clientY - h.y) > HOLD_SLOP) {
+      window.clearTimeout(h.timer)
+      hold.current = null
+    }
+  }
 
   useEffect(() => {
     void animate(y, drawerTop(snap, screenHeight), SPRING)
@@ -145,43 +213,58 @@ export function MagnetDrawer({
 
       {/* only the part of the drawer that is on screen scrolls */}
       <motion.div
+        ref={bodyRef}
         className="drawer__body"
         style={{ height: screenHeight - drawerTop(snap, screenHeight) - 130, opacity: contentOpacity }}
         inert={snap === 'collapsed'}
       >
         {tab === 'words' ? (
-          // words can be used as often as you like, so they never run out
+          // words can be used as often as you like, so they never run out.
+          // Tap to collect; hold and drag to put one straight on the fridge.
           <div className="bank">
-            {words.map((w) => {
-              const count = pileCounts.get(w.id) ?? 0
-              return (
-                <motion.button
-                  key={w.id}
-                  className="bank__item"
-                  whileTap={{ scale: 0.94 }}
-                  onClick={(e) => onPick(w, e.currentTarget.getBoundingClientRect())}
-                  aria-label={`Collect ${w.text}`}
-                >
-                  <Magnet text={w.text} />
-                  <AnimatePresence>
-                    {count > 0 && (
-                      // Figma: a small black badge with the number in the pile
-                      <motion.span
-                        key="badge"
-                        className="bank__badge"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        exit={{ scale: 0 }}
-                        transition={{ duration: 0.16, ease: 'easeOut' }}
-                        aria-label={`${count} in the pile`}
-                      >
-                        {count}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </motion.button>
-              )
-            })}
+            {rowsOf(words, 3).map((row) => (
+              <div key={row[0]!.id} className="bank__row">
+                {row.map((w) => {
+                  const count = pileCounts.get(w.id) ?? 0
+                  return (
+                    <motion.button
+                      key={w.id}
+                      className="bank__item"
+                      whileTap={{ scale: 0.94 }}
+                      onPointerDown={(e) => startHold(w, e)}
+                      onPointerMove={moveHold}
+                      onContextMenu={(e) => e.preventDefault()}
+                      onClick={(e) => {
+                        if (skipClick.current) {
+                          skipClick.current = false
+                          return
+                        }
+                        onPick(w, e.currentTarget.getBoundingClientRect())
+                      }}
+                      aria-label={`Collect ${w.text}`}
+                    >
+                      <Magnet text={w.text} />
+                      <AnimatePresence>
+                        {count > 0 && (
+                          // Figma: a small black badge with the number in the pile
+                          <motion.span
+                            key="badge"
+                            className="bank__badge"
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            exit={{ scale: 0 }}
+                            transition={{ duration: 0.16, ease: 'easeOut' }}
+                            aria-label={`${count} in the pile`}
+                          >
+                            {count}
+                          </motion.span>
+                        )}
+                      </AnimatePresence>
+                    </motion.button>
+                  )
+                })}
+              </div>
+            ))}
           </div>
         ) : (
           <p className="drawer__note drawer__note--empty">

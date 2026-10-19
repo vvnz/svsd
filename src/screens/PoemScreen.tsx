@@ -1,5 +1,5 @@
-import { useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { AnimatePresence, motion } from 'motion/react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { AnimatePresence, motion, useMotionValue } from 'motion/react'
 
 import { Icon } from '../components/Icon'
 import { SideMenu, type MenuId } from '../components/SideMenu'
@@ -10,6 +10,7 @@ import {
   manifest as enamelManifest,
 } from '../lib/custom-effects/CodeComponentId_8c552fed7acffbf136b02cbdf0d8db95993c2df4_381de6e90985c8ec78c4acf4f54027e72beb6d15'
 import { FridgeMagnet, randomTilt } from '../components/FridgeMagnet'
+import { Magnet } from '../components/Magnet'
 import { MagnetDrawer, drawerTop, type DrawerSnap } from '../components/MagnetDrawer'
 import { MagnetPile } from '../components/MagnetPile'
 import { wordBankFor, type BankWord } from '../data/wordBank'
@@ -68,6 +69,12 @@ export function PoemScreen({ onMenu }: { onMenu: (id: MenuId) => void }) {
   // Figma "Poem - Delete Mode" (88:5505): long press a magnet; it ends on its own once the fridge is empty
   const [deleteModeOn, setDeleteMode] = useState(false)
   const deleteMode = deleteModeOn && placed.length > 0
+  // a word held in the drawer and being dragged out onto the fridge
+  const [held, setHeld] = useState<BankWord | null>(null)
+  const [heldOverDrawer, setHeldOverDrawer] = useState(true)
+  const heldX = useMotionValue(0)
+  const heldY = useMotionValue(0)
+  const heldRef = useRef<HTMLDivElement>(null)
   const spawnFrom = useRef(new Map<string, { x: number; y: number }>())
   const spawnDelay = useRef(new Map<string, number>())
   const pileSpawn = useRef(new Map<string, { x: number; y: number }>())
@@ -128,6 +135,56 @@ export function PoemScreen({ onMenu }: { onMenu: (id: MenuId) => void }) {
     dispatch({ type: 'release', magnets: magnets.reverse() })
     navigator.vibrate?.([6, 30, 6])
   }
+
+  // Screen-relative position of a pointer.
+  const toScreen = (clientX: number, clientY: number) => {
+    const r = screenRef.current?.getBoundingClientRect()
+    return { x: clientX - (r?.left ?? 0), y: clientY - (r?.top ?? 0) }
+  }
+
+  // A word held in the drawer: it lifts out and follows the finger until it's let go.
+  function hold(word: BankWord, point: { x: number; y: number }) {
+    const p = toScreen(point.x, point.y)
+    heldX.set(p.x)
+    heldY.set(p.y)
+    setHeldOverDrawer(true)
+    setHeld(word)
+  }
+
+  useEffect(() => {
+    if (!held) return
+    const move = (e: PointerEvent) => {
+      const p = toScreen(e.clientX, e.clientY)
+      heldX.set(p.x)
+      heldY.set(p.y)
+      setHeldOverDrawer(p.y > drawerTop(snap, size.height))
+    }
+    const drop = (e: PointerEvent) => {
+      const p = toScreen(e.clientX, e.clientY)
+      const box = heldRef.current?.getBoundingClientRect()
+      const screen = screenRef.current?.getBoundingClientRect()
+      // let go over the fridge: it sticks where it was dropped; over the drawer: it goes back
+      if (e.type === 'pointerup' && box && screen && p.y < drawerTop(snap, size.height)) {
+        const x = Math.min(Math.max(box.left - screen.left, 8), size.width - box.width - 8)
+        const y = Math.min(Math.max(box.top - screen.top, 8), size.height - box.height - 8)
+        dispatch({
+          type: 'place',
+          magnet: { id: newMagnetId(), text: held.text, x: Math.round(x), y: Math.round(y), rotate: randomTilt() },
+        })
+        navigator.vibrate?.(8)
+      }
+      setHeld(null)
+    }
+    window.addEventListener('pointermove', move)
+    window.addEventListener('pointerup', drop)
+    window.addEventListener('pointercancel', drop)
+    return () => {
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', drop)
+      window.removeEventListener('pointercancel', drop)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [held, snap, size])
 
   function deleteMagnet(id: string) {
     dispatch({ type: 'remove', id })
@@ -194,10 +251,10 @@ export function PoemScreen({ onMenu }: { onMenu: (id: MenuId) => void }) {
             />
             <motion.p
               key="hint"
-              className="delete-mode__hint"
-              initial={{ opacity: 0, y: -6 }}
+              className={`delete-mode__hint ${pile.length ? 'delete-mode__hint--above-pile' : ''}`}
+              initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
+              exit={{ opacity: 0, y: 6 }}
               transition={{ duration: 0.2 }}
             >
               Tap a magnet to remove it
@@ -206,16 +263,15 @@ export function PoemScreen({ onMenu }: { onMenu: (id: MenuId) => void }) {
             </motion.p>
             <motion.button
               key="clear"
-              className="cta cta--light delete-mode__clear"
-              style={{ x: '-50%' }}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 12 }}
+              className="text-btn top-right delete-mode__clear"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              whileTap={{ scale: 0.97 }}
+              whileTap={{ scale: 0.95 }}
               onClick={clearFridge}
             >
-              Clear fridge
+              Clear
             </motion.button>
           </>
         )}
@@ -258,7 +314,26 @@ export function PoemScreen({ onMenu }: { onMenu: (id: MenuId) => void }) {
         pileCounts={pileCounts}
         removeHint={dragging && overDrawer}
         onPick={collect}
+        onHold={hold}
       />
+
+      {/* the word being dragged out of the drawer, a little above the finger so it stays visible */}
+      <AnimatePresence>
+        {held && (
+          <motion.div
+            key="held"
+            ref={heldRef}
+            className="held-magnet"
+            style={{ x: heldX, y: heldY }}
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: heldOverDrawer ? 1 : 1.08, opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.1 } }}
+            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+          >
+            <Magnet text={held.text} size="fridge" />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <MagnetPile
         pile={pile}

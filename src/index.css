@@ -434,9 +434,10 @@ button {
   cursor: default;
 }
 
+/* where the Clear fridge button used to be, just above the closed drawer bar */
 .delete-mode__hint {
   position: absolute;
-  top: 30px;
+  bottom: 100px;
   left: 0;
   right: 0;
   z-index: 41;
@@ -448,6 +449,10 @@ button {
   font-weight: 500;
   line-height: 20px;
   color: #fff;
+}
+/* words waiting in the pile sit in that spot, so go just above them */
+.delete-mode__hint--above-pile {
+  bottom: 170px;
 }
 .delete-mode__hint span {
   font-size: 12px;
@@ -471,11 +476,23 @@ button {
   animation: wiggle 0.32s ease-in-out infinite;
 }
 
-/* just above the closed drawer bar (80px) */
-.delete-mode__clear {
+/* .text-btn sets black text later in the file, so this needs the extra class */
+.text-btn.delete-mode__clear {
   z-index: 41;
-  bottom: 100px;
-  transform: none;
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* a word dragged out of the drawer, centred a little above the finger */
+.held-magnet {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 45;
+  translate: -50% -80%;
+  pointer-events: none;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.2));
 }
 
 .fridge-magnet {
@@ -627,19 +644,20 @@ button {
 }
 
 /* Figma rows: first magnet flush left, second centered, third flush right */
+/* Figma: rows of three, flush with the 36px margins, equal gaps between (space-between) */
 .bank {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  row-gap: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
-.bank__item:nth-child(3n + 1) {
-  justify-self: start;
+.bank__row {
+  display: flex;
+  justify-content: space-between;
 }
-.bank__item:nth-child(3n + 2) {
-  justify-self: center;
-}
-.bank__item:nth-child(3n) {
-  justify-self: end;
+.bank__item {
+  /* hold-to-drag: no text selection or iOS callout on a long press */
+  -webkit-touch-callout: none;
+  user-select: none;
 }
 
 .bank__item {

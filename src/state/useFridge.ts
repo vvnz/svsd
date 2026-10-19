@@ -18,6 +18,7 @@ type State = Fridge & { past: Fridge[] }
 
 type Action =
   | { type: 'collect'; magnet: PiledMagnet }
+  | { type: 'place'; magnet: PlacedMagnet }
   | { type: 'release'; magnets: PlacedMagnet[] }
   | { type: 'move'; id: string; x: number; y: number; rotate: number }
   | { type: 'remove'; id: string }
@@ -30,6 +31,9 @@ function apply(f: Fridge, action: Exclude<Action, { type: 'undo' }>): Fridge {
   switch (action.type) {
     case 'collect':
       return { ...f, pile: [...f.pile, action.magnet] }
+    case 'place':
+      // a word dragged straight from the drawer onto the fridge
+      return { ...f, placed: [...f.placed, action.magnet] }
     case 'release':
       // the whole pile goes onto the fridge at once
       if (!f.pile.length) return f
