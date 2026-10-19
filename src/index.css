@@ -329,17 +329,6 @@ button {
   background: var(--surface-2);
 }
 
-.back-btn {
-  position: absolute;
-  left: 30px;
-  top: 31px;
-  width: 24px;
-  height: 24px;
-  display: grid;
-  place-items: center;
-  z-index: 5;
-}
-
 .home-tab {
   position: absolute;
   right: -1px;
@@ -751,8 +740,14 @@ button {
   gap: 8px;
   z-index: 20;
 }
-.tool-column--day .icon-btn:first-child {
+/* back (or undo) sits a little apart from the icons below it */
+.tool-column--day .icon-btn:first-child,
+.tool-column--poem .icon-btn:first-child {
   margin-bottom: 21px;
+}
+/* Figma: the poem page's undo sits 30px in, not 36 */
+.tool-column--poem {
+  left: 30px;
 }
 
 .top-left {
@@ -1284,11 +1279,6 @@ button {
 
 .star-btn {
   position: relative;
-}
-/* today's poem: in the top right corner, like Save on other screens */
-.star-btn.top-right {
-  position: absolute;
-  top: 31px;
 }
 .star-btn .icon {
   position: relative;

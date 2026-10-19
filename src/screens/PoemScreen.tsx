@@ -243,22 +243,24 @@ export function PoemScreen({ onMenu, onFavouritesFull }: Props) {
         <div className="surface__fill" />
       </ShaderEffect>
 
-      {/* Figma "undo" icon (75:5214): steps back through adds, moves and removals */}
-      <motion.button
-        className="icon-btn back-btn"
-        aria-label="Undo"
-        disabled={!canUndo}
-        animate={{ opacity: canUndo ? 1 : 0.3 }}
-        whileTap={canUndo ? { scale: 0.88, rotate: -12 } : undefined}
-        onClick={() => {
-          dispatch({ type: 'undo' })
-          navigator.vibrate?.(8)
-        }}
-      >
-        <Icon name="undo" size={25} />
-      </motion.button>
-
-      <StarButton pinned={pinned} onClick={star} className="top-right" />
+      {/* undo on top, then the star, stacked like the day view's back / share / star column */}
+      <div className="tool-column tool-column--poem">
+        {/* Figma "undo" icon (75:5214): steps back through adds, moves and removals */}
+        <motion.button
+          className="icon-btn"
+          aria-label="Undo"
+          disabled={!canUndo}
+          animate={{ opacity: canUndo ? 1 : 0.3 }}
+          whileTap={canUndo ? { scale: 0.88, rotate: -12 } : undefined}
+          onClick={() => {
+            dispatch({ type: 'undo' })
+            navigator.vibrate?.(8)
+          }}
+        >
+          <Icon name="undo" size={25} />
+        </motion.button>
+        <StarButton pinned={pinned} onClick={star} />
+      </div>
 
       <SideMenu screenWidth={size.width} onSelect={onMenu} />
 
