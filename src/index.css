@@ -626,7 +626,8 @@ button {
 }
 /* back (or undo) sits further from the icons below it: 24px */
 .tool-column--day .icon-btn:first-child,
-.tool-column--poem .icon-btn:first-child {
+.tool-column--poem .icon-btn:first-child,
+.tool-column--edit .icon-btn:first-child {
   margin-bottom: 8px;
 }
 /* Figma: the poem page's undo sits 30px in, not 36 */

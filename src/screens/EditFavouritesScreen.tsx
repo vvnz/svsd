@@ -34,16 +34,17 @@ export function EditFavouritesScreen({ draft, onChange, onAdd, onCancel, onSave,
 
   return (
     <div className="screen" ref={ref}>
-      <div className="tool-column">
+      {/* back on top, like the other icon columns */}
+      <div className="tool-column tool-column--edit">
+        <button className="icon-btn" aria-label="Cancel" onClick={onCancel}>
+          <Icon name="chevronLeft" size={40} />
+        </button>
         <button
           className="icon-btn"
           aria-label="Add a favourite"
           onClick={() => (full ? toast.show('Your fridge is full, remove one first') : onAdd())}
         >
           <Icon name="plus" size={40} />
-        </button>
-        <button className="icon-btn" aria-label="Cancel" onClick={onCancel}>
-          <Icon name="chevronLeft" size={40} />
         </button>
       </div>
       <button className="text-btn top-right" onClick={onSave}>
