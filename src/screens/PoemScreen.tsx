@@ -11,8 +11,9 @@ import {
 } from '../lib/custom-effects/CodeComponentId_8c552fed7acffbf136b02cbdf0d8db95993c2df4_381de6e90985c8ec78c4acf4f54027e72beb6d15'
 import { FridgeMagnet, randomTilt } from '../components/FridgeMagnet'
 import { MagnetDrawer, drawerTop, type DrawerSnap } from '../components/MagnetDrawer'
-import { MAX_WORDS_ON_FRIDGE, wordBankFor, type BankWord } from '../data/wordBank'
-import { todayKey, useFridge, type PlacedMagnet } from '../state/useFridge'
+import { MagnetPile } from '../components/MagnetPile'
+import { wordBankFor, type BankWord } from '../data/wordBank'
+import { newMagnetId, todayKey, useFridge } from '../state/useFridge'
 
 // Shader params copied from the Figma "Poem" frames (Fridge enamel texture).
 const ENAMEL_SHADERS = [
@@ -38,29 +39,26 @@ type Rect = { x: number; y: number; w: number; h: number }
 const overlaps = (a: Rect, b: Rect, pad = 6) =>
   a.x < b.x + b.w + pad && a.x + a.w + pad > b.x && a.y < b.y + b.h + pad && a.y + a.h + pad > b.y
 
-// New words land in reading order, top to bottom, left to right, in the first gap
-// that fits, so a fresh poem starts out readable and is easy to rearrange.
-function findSpot(text: string, placed: PlacedMagnet[], area: Rect) {
+// A released pile scatters across the fridge, as in Figma's "on canvas" frame:
+// random spots, but avoiding the magnets already there so every word stays readable.
+function scatterSpot(text: string, taken: Rect[], area: Rect) {
   const size = estimateSize(text)
-  const taken = placed.map((m) => ({ x: m.x, y: m.y, ...estimateSize(m.text) }))
-  for (let y = area.y; y + size.h <= area.y + area.h; y += 46) {
-    for (let x = area.x; x + size.w <= area.x + area.w; x += 8) {
-      const jitterY = y + Math.round(Math.random() * 6 - 3)
-      const r = { x, y: jitterY, ...size }
-      if (!taken.some((t) => overlaps(r, t))) return { x, y: jitterY }
-    }
+  const random = () => ({
+    x: Math.round(area.x + Math.random() * Math.max(area.w - size.w, 0)),
+    y: Math.round(area.y + Math.random() * Math.max(area.h - size.h, 0)),
+  })
+  for (let i = 0; i < 60; i++) {
+    const spot = random()
+    if (!taken.some((t) => overlaps({ ...spot, ...size }, t))) return spot
   }
-  // fridge is crowded: drop it somewhere in the area and let the user tidy up
-  return {
-    x: area.x + Math.random() * Math.max(area.w - size.w, 0),
-    y: area.y + Math.random() * Math.max(area.h - size.h, 0),
-  }
+  // fridge is crowded: drop it anywhere and let the user tidy up
+  return random()
 }
 
 export function PoemScreen({ onMenu }: { onMenu: (id: MenuId) => void }) {
   const dateKey = todayKey()
   const words = useMemo(() => wordBankFor(dateKey), [dateKey])
-  const { placed, canUndo, dispatch } = useFridge(dateKey)
+  const { placed, pile, canUndo, dispatch } = useFridge(dateKey)
 
   const screenRef = useRef<HTMLDivElement>(null)
   const [size, setSize] = useState({ width: 402, height: 874 })
@@ -68,6 +66,8 @@ export function PoemScreen({ onMenu }: { onMenu: (id: MenuId) => void }) {
   const [dragging, setDragging] = useState(false)
   const [overDrawer, setOverDrawer] = useState(false)
   const spawnFrom = useRef(new Map<string, { x: number; y: number }>())
+  const spawnDelay = useRef(new Map<string, number>())
+  const pileSpawn = useRef(new Map<string, { x: number; y: number }>())
 
   useLayoutEffect(() => {
     const el = screenRef.current
@@ -80,9 +80,15 @@ export function PoemScreen({ onMenu }: { onMenu: (id: MenuId) => void }) {
     return () => ro.disconnect()
   }, [])
 
-  const usedIds = useMemo(() => new Set(placed.map((m) => m.id)), [placed])
-  const isFull = placed.length >= MAX_WORDS_ON_FRIDGE
-  const top = drawerTop(snap, size.height)
+  const pileCounts = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const m of pile) counts.set(m.wordId, (counts.get(m.wordId) ?? 0) + 1)
+    return counts
+  }, [pile])
+  const collapsedTop = drawerTop('collapsed', size.height)
+  // Figma: the pile rests just above the closed drawer, or at the bottom of the screen over an open one
+  const pileCenterX = size.width / 2
+  const pileBottom = snap === 'collapsed' ? collapsedTop - 25 : size.height - 42
 
   // Is a page y coordinate over the drawer?
   const isOverDrawer = (pageY: number) => {
@@ -91,19 +97,33 @@ export function PoemScreen({ onMenu }: { onMenu: (id: MenuId) => void }) {
     return pageY - rect.top - window.scrollY > drawerTop(snap, size.height)
   }
 
-  function pick(word: BankWord, from: DOMRect) {
-    if (isFull || usedIds.has(word.id)) return
+  // Tap a word in the drawer: a copy flies down into the pile.
+  function collect(word: BankWord, from: DOMRect) {
     const screen = screenRef.current?.getBoundingClientRect()
     if (!screen) return
-    // words fill the open space above the drawer, under the top icons
-    const area = { x: 28, y: 92, w: size.width - 56 - 40, h: Math.max(top - 92 - 20, 120) }
-    const spot = findSpot(word.text, placed, area)
-    spawnFrom.current.set(word.id, { x: from.left - screen.left, y: from.top - screen.top })
-    dispatch({
-      type: 'place',
-      magnet: { id: word.id, text: word.text, x: spot.x, y: spot.y, rotate: randomTilt() },
-    })
+    const id = newMagnetId()
+    pileSpawn.current.set(id, { x: from.left + from.width / 2 - screen.left, y: from.top - screen.top })
+    dispatch({ type: 'collect', magnet: { id, wordId: word.id, text: word.text } })
     navigator.vibrate?.(8)
+  }
+
+  // Tap the pile: the drawer closes and every collected word scatters onto the fridge.
+  function release() {
+    if (!pile.length) return
+    setSnap('collapsed')
+    // the open fridge, under the top icons, left of the menu tab and clear of the pile
+    const area = { x: 28, y: 92, w: size.width - 56 - 40, h: Math.max(collapsedTop - 25 - 52 - 92 - 24, 160) }
+    const taken: Rect[] = placed.map((m) => ({ x: m.x, y: m.y, ...estimateSize(m.text) }))
+    // newest first, so the word on top of the pile is the first to fly
+    const magnets = [...pile].reverse().map((m, i) => {
+      const spot = scatterSpot(m.text, taken, area)
+      taken.push({ ...spot, ...estimateSize(m.text) })
+      spawnFrom.current.set(m.id, { x: pileCenterX - estimateSize(m.text).w / 2, y: collapsedTop - 25 - 52 })
+      spawnDelay.current.set(m.id, i * 0.05)
+      return { id: m.id, text: m.text, x: spot.x, y: spot.y, rotate: randomTilt() }
+    })
+    dispatch({ type: 'release', magnets: magnets.reverse() })
+    navigator.vibrate?.([6, 30, 6])
   }
 
   return (
@@ -130,7 +150,7 @@ export function PoemScreen({ onMenu }: { onMenu: (id: MenuId) => void }) {
       <SideMenu screenWidth={size.width} onSelect={onMenu} />
 
       <AnimatePresence>
-        {placed.length === 0 && snap === 'collapsed' && (
+        {placed.length === 0 && pile.length === 0 && snap === 'collapsed' && (
           <motion.p
             className="empty-hint"
             initial={{ opacity: 0 }}
@@ -152,11 +172,13 @@ export function PoemScreen({ onMenu }: { onMenu: (id: MenuId) => void }) {
               key={m.id}
               magnet={m}
               spawnFrom={spawnFrom.current.get(m.id)}
+              spawnDelay={spawnDelay.current.get(m.id)}
               bounds={size}
               onDragStateChange={(isDragging, pageY) => {
                 setDragging(isDragging)
                 setOverDrawer(isDragging && pageY !== undefined && isOverDrawer(pageY))
                 spawnFrom.current.delete(m.id)
+                spawnDelay.current.delete(m.id)
               }}
               onDrop={(id, x, y, rotate, pageY) => {
                 if (isOverDrawer(pageY)) dispatch({ type: 'remove', id })
@@ -172,12 +194,17 @@ export function PoemScreen({ onMenu }: { onMenu: (id: MenuId) => void }) {
         snap={snap}
         onSnapChange={setSnap}
         words={words}
-        usedIds={usedIds}
-        isFull={isFull}
-        placedCount={placed.length}
-        maxWords={MAX_WORDS_ON_FRIDGE}
+        pileCounts={pileCounts}
         removeHint={dragging && overDrawer}
-        onPick={pick}
+        onPick={collect}
+      />
+
+      <MagnetPile
+        pile={pile}
+        centerX={pileCenterX}
+        bottom={pileBottom}
+        spawnFrom={pileSpawn.current}
+        onRelease={release}
       />
     </div>
   )
