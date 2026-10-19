@@ -24,6 +24,8 @@ export function FridgeMagnet({ magnet, spawnFrom, bounds, onDragStateChange, onD
   const y = useMotionValue(spawnFrom?.y ?? magnet.y)
   const rotate = useMotionValue(spawnFrom ? 0 : magnet.rotate)
   const ref = useRef<HTMLDivElement>(null)
+  // where this magnet last put itself, so a drop doesn't re-trigger the glide below
+  const settled = useRef({ x: magnet.x, y: magnet.y, rotate: magnet.rotate })
 
   // Fly in from the word bank on first mount.
   useEffect(() => {
@@ -33,6 +35,16 @@ export function FridgeMagnet({ magnet, spawnFrom, bounds, onDragStateChange, onD
     void animate(rotate, magnet.rotate, { ...SETTLE, delay: 0.18 })
     // runs only on mount, on purpose
   }, [])
+
+  // Moved from outside (undo): glide back to the saved spot.
+  useEffect(() => {
+    const s = settled.current
+    if (s.x === magnet.x && s.y === magnet.y && s.rotate === magnet.rotate) return
+    settled.current = { x: magnet.x, y: magnet.y, rotate: magnet.rotate }
+    void animate(x, magnet.x, FLY)
+    void animate(y, magnet.y, FLY)
+    void animate(rotate, magnet.rotate, SETTLE)
+  }, [magnet.x, magnet.y, magnet.rotate, x, y, rotate])
 
   return (
     <motion.div
@@ -61,6 +73,7 @@ export function FridgeMagnet({ magnet, spawnFrom, bounds, onDragStateChange, onD
         void animate(y, ny, SETTLE)
         const tilt = randomTilt()
         void animate(rotate, tilt, SETTLE)
+        settled.current = { x: nx, y: ny, rotate: tilt }
         onDrop(magnet.id, nx, ny, tilt, info.point.y)
       }}
     >

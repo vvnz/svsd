@@ -57,10 +57,10 @@ function findSpot(text: string, placed: PlacedMagnet[], area: Rect) {
   }
 }
 
-export function PoemScreen({ onBack, onMenu }: { onBack: () => void; onMenu: (id: MenuId) => void }) {
+export function PoemScreen({ onMenu }: { onMenu: (id: MenuId) => void }) {
   const dateKey = todayKey()
   const words = useMemo(() => wordBankFor(dateKey), [dateKey])
-  const { placed, dispatch } = useFridge(dateKey)
+  const { placed, canUndo, dispatch } = useFridge(dateKey)
 
   const screenRef = useRef<HTMLDivElement>(null)
   const [size, setSize] = useState({ width: 402, height: 874 })
@@ -112,9 +112,20 @@ export function PoemScreen({ onBack, onMenu }: { onBack: () => void; onMenu: (id
         <div className="surface__fill" />
       </ShaderEffect>
 
-      <button className="icon-btn back-btn" aria-label="Back" onClick={onBack}>
-        <Icon name="back" size={25} />
-      </button>
+      {/* Figma "undo" icon (75:5214): steps back through adds, moves and removals */}
+      <motion.button
+        className="icon-btn back-btn"
+        aria-label="Undo"
+        disabled={!canUndo}
+        animate={{ opacity: canUndo ? 1 : 0.3 }}
+        whileTap={canUndo ? { scale: 0.88, rotate: -12 } : undefined}
+        onClick={() => {
+          dispatch({ type: 'undo' })
+          navigator.vibrate?.(8)
+        }}
+      >
+        <Icon name="undo" size={25} />
+      </motion.button>
 
       <SideMenu screenWidth={size.width} onSelect={onMenu} />
 
