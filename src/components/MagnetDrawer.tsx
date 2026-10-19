@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
-import { animate, motion, useDragControls, useMotionValue, type PanInfo } from 'motion/react'
+import { animate, motion, useDragControls, useMotionValue, useTransform, type PanInfo } from 'motion/react'
 
 import { Icon } from './Icon'
 import { Magnet } from './Magnet'
@@ -46,6 +46,10 @@ export function MagnetDrawer({
 }: Props) {
   const [tab, setTab] = useState<Tab>('words')
   const y = useMotionValue(drawerTop(snap, screenHeight))
+  // Figma: the closed drawer is just the "Add Magnets" bar, so the tabs and words
+  // fade in as the drawer is pulled up instead of peeking out below it
+  const collapsedTop = drawerTop('collapsed', screenHeight)
+  const contentOpacity = useTransform(y, [collapsedTop, collapsedTop - 60], [0, 1])
   const dragControls = useDragControls()
   const draggedRef = useRef(false)
 
@@ -106,7 +110,11 @@ export function MagnetDrawer({
         <span className="drawer__title">{removeHint ? 'Drop here to remove' : 'Add Magnets'}</span>
       </header>
 
-      <div className="drawer__toolbar">
+      <motion.div
+        className="drawer__toolbar"
+        style={{ opacity: contentOpacity }}
+        inert={snap === 'collapsed'}
+      >
         <div className="drawer__tabs" role="tablist">
           <button
             role="tab"
@@ -143,10 +151,14 @@ export function MagnetDrawer({
             {placedCount}/{maxWords}
           </span>
         )}
-      </div>
+      </motion.div>
 
       {/* only the part of the drawer that is on screen scrolls */}
-      <div className="drawer__body" style={{ height: screenHeight - drawerTop(snap, screenHeight) - 130 }}>
+      <motion.div
+        className="drawer__body"
+        style={{ height: screenHeight - drawerTop(snap, screenHeight) - 130, opacity: contentOpacity }}
+        inert={snap === 'collapsed'}
+      >
         {tab === 'words' ? (
           <>
             {isFull && <p className="drawer__note">Your fridge is full. Drag a word down here to swap it out.</p>}
@@ -175,7 +187,7 @@ export function MagnetDrawer({
             {tab === 'stickers' ? 'Stickers are coming soon.' : 'Images are coming soon.'}
           </p>
         )}
-      </div>
+      </motion.div>
       {snap !== 'collapsed' && (
         <div
           className="drawer__fade"

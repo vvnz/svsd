@@ -38,7 +38,7 @@ export function EditFavouritesScreen({ draft, onChange, onAdd, onCancel, onSave 
           <Icon name="plus" size={24} />
         </button>
         <button className="icon-btn" aria-label="Cancel" onClick={onCancel}>
-          <Icon name="back" size={24} />
+          <Icon name="chevronLeft" size={24} />
         </button>
       </div>
       <button className="text-btn top-right" onClick={onSave}>

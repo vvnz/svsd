@@ -6,10 +6,11 @@ import { SteelBackdrop } from '../components/SteelBackdrop'
 import { useApp } from '../state/appState'
 import { useScreenSize } from '../state/useScreenSize'
 
-type Props = { date: string; onShare: () => void; onDone: () => void }
+type Props = { date: string; onShare: () => void; onBack: () => void }
 
 // Figma "Fridge - View Favourite" (43:584): one favourite, full size, on brushed steel.
-export function ViewPoemScreen({ date, onShare, onDone }: Props) {
+// Viewing doesn't change anything, so it has a back button rather than Figma's "Save".
+export function ViewPoemScreen({ date, onShare, onBack }: Props) {
   const { poemFor } = useApp()
   const poem = poemFor(date)
   const [ref, size] = useScreenSize()
@@ -20,11 +21,11 @@ export function ViewPoemScreen({ date, onShare, onDone }: Props) {
   return (
     <div className="screen" ref={ref}>
       <SteelBackdrop />
-      <button className="icon-btn top-left" aria-label="Share this poem" onClick={onShare}>
-        <Icon name="shareUp" size={24} />
+      <button className="icon-btn top-left" aria-label="Back" onClick={onBack}>
+        <Icon name="chevronLeft" size={24} />
       </button>
-      <button className="text-btn top-right" onClick={onDone}>
-        Save
+      <button className="icon-btn top-right" aria-label="Share this poem" onClick={onShare}>
+        <Icon name="shareUp" size={24} />
       </button>
       <p className="poem-date">{prettyDate(date)}</p>
 
