@@ -164,7 +164,7 @@ function Screens() {
               <ViewPoemScreen
                 date={route.date}
                 onShare={() => go({ name: 'share', subject: route.date, back: route })}
-                onDone={() => go({ name: 'favourites' }, -1)}
+                onBack={() => go({ name: 'favourites' }, -1)}
               />
             )}
             {route.name === 'customize' && (
