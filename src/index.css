@@ -559,16 +559,6 @@ button {
   color: var(--black-3);
 }
 
-.drawer__count {
-  font-size: 13px;
-  color: var(--fill-4);
-  font-variant-numeric: tabular-nums;
-}
-
-.drawer__count--full {
-  color: #fff;
-}
-
 .drawer__body {
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -597,8 +587,45 @@ button {
   justify-self: end;
 }
 
-.bank__item:disabled {
-  cursor: default;
+.bank__item {
+  position: relative;
+}
+
+/* Figma: how many of this word are waiting in the pile */
+.bank__badge {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px solid #fff;
+  background: var(--black-3);
+  color: #fff;
+  font-family: 'Patrick Hand', cursive;
+  font-size: 13px;
+  line-height: 1;
+}
+
+/* ---------- Collected pile (tap to collect) ---------- */
+
+/* sits above the drawer, below the side menu */
+.pile {
+  position: absolute;
+  z-index: 24;
+  width: 0;
+  height: 52px;
+}
+
+.pile__item {
+  position: absolute;
+  left: 0;
+  top: 0;
+  translate: -50% 0;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.12));
 }
 
 .drawer__note {

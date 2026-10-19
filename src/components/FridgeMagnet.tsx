@@ -7,6 +7,8 @@ import type { PlacedMagnet } from '../state/useFridge'
 type Props = {
   magnet: PlacedMagnet
   spawnFrom?: { x: number; y: number }
+  /** seconds to wait before flying in, so a released pile scatters one after another */
+  spawnDelay?: number
   bounds: { width: number; height: number }
   onDragStateChange: (dragging: boolean, clientY?: number) => void
   onDrop: (id: string, x: number, y: number, rotate: number, clientY: number) => void
@@ -19,7 +21,7 @@ export const randomTilt = () => Math.round((Math.random() * 6 - 3) * 10) / 10
 const SETTLE = { type: 'spring', stiffness: 520, damping: 14, mass: 0.6 } as const
 const FLY = { type: 'spring', stiffness: 260, damping: 26 } as const
 
-export function FridgeMagnet({ magnet, spawnFrom, bounds, onDragStateChange, onDrop }: Props) {
+export function FridgeMagnet({ magnet, spawnFrom, spawnDelay = 0, bounds, onDragStateChange, onDrop }: Props) {
   const x = useMotionValue(spawnFrom?.x ?? magnet.x)
   const y = useMotionValue(spawnFrom?.y ?? magnet.y)
   const rotate = useMotionValue(spawnFrom ? 0 : magnet.rotate)
@@ -27,12 +29,12 @@ export function FridgeMagnet({ magnet, spawnFrom, bounds, onDragStateChange, onD
   // where this magnet last put itself, so a drop doesn't re-trigger the glide below
   const settled = useRef({ x: magnet.x, y: magnet.y, rotate: magnet.rotate })
 
-  // Fly in from the word bank on first mount.
+  // Fly in from the pile on first mount.
   useEffect(() => {
     if (!spawnFrom) return
-    void animate(x, magnet.x, FLY)
-    void animate(y, magnet.y, FLY)
-    void animate(rotate, magnet.rotate, { ...SETTLE, delay: 0.18 })
+    void animate(x, magnet.x, { ...FLY, delay: spawnDelay })
+    void animate(y, magnet.y, { ...FLY, delay: spawnDelay })
+    void animate(rotate, magnet.rotate, { ...SETTLE, delay: spawnDelay + 0.18 })
     // runs only on mount, on purpose
   }, [])
 

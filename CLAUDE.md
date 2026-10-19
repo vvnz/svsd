@@ -73,8 +73,9 @@ shadow `1px 2px 4.8px rgba(0,0,0,.25), 1px 1px 0 rgba(47,47,47,.6)`.
 - `src/state/appState.tsx` favourites, fridge style, settings (localStorage) and `poemFor(date)`
 - `src/data/poems.ts` seeded past poems so the calendar and favourites look lived-in
 - `src/components/FridgeMagnet.tsx` one draggable magnet on the fridge (fly-in + settle wobble)
+- `src/components/MagnetPile.tsx` the pile of collected words; tap it to release them
 - `src/components/Magnet.tsx` the magnet tile visual, shared everywhere
-- `src/state/useFridge.ts` the day's poem, autosaved to localStorage per date
+- `src/state/useFridge.ts` the day's poem and pile, autosaved to localStorage per date, plus undo history (in memory)
 - `src/data/wordBank.ts` sample word bank (personal words are **simulated** for now)
 - `src/lib/custom-effect-runtime/` + `src/lib/custom-effects/` Figma's shader runtime and the
   "Fridge enamel texture" and brushed steel shaders, copied verbatim from Figma (params in `src/lib/shaders.ts`). Don't edit these. The texture needs
@@ -82,8 +83,10 @@ shadow `1px 2px 4.8px rgba(0,0,0,.25), 1px 1px 0 rgba(47,47,47,.6)`.
 
 ## Product decisions so far
 
-- One fridge per day, autosaves, no save button. Max 20 words on the fridge.
-- Tap a word in the bank to add it; drag magnets to rearrange; drag one onto the drawer to remove it.
+- One fridge per day, autosaves, no save button. No word limit, and words can be reused as often as you like.
+- Tap to collect (Figma section "Tap to Collect Interaction", 158:4883): tapping a word in the bank drops a copy
+  into a pile at the bottom of the screen (the bank word shows a count badge); tap the pile to scatter them all
+  onto the fridge. Drag magnets to rearrange; drag one onto the drawer to remove it. Undo steps back through all of it.
 - Where personal words come from is **undecided**. Reading messaging apps isn't possible
   (iMessage/Instagram/etc. don't allow it), so don't build integrations; keep sample words.
 - Favorites fridge has 6 slots. Favourites show only a poem's words (photo days show their photo).

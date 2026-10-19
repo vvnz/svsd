@@ -39,4 +39,3 @@ export function wordBankFor(dateKey: string): BankWord[] {
   return seededShuffle(words, seed)
 }
 
-export const MAX_WORDS_ON_FRIDGE = 20

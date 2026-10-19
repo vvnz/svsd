@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
-import { animate, motion, useDragControls, useMotionValue, useTransform, type PanInfo } from 'motion/react'
+import { AnimatePresence, animate, motion, useDragControls, useMotionValue, useTransform, type PanInfo } from 'motion/react'
 
 import { Icon } from './Icon'
 import { Magnet } from './Magnet'
@@ -14,10 +14,8 @@ type Props = {
   snap: DrawerSnap
   onSnapChange: (snap: DrawerSnap) => void
   words: BankWord[]
-  usedIds: Set<string>
-  isFull: boolean
-  placedCount: number
-  maxWords: number
+  /** how many of each word (by id) are waiting in the pile */
+  pileCounts: Map<string, number>
   removeHint: boolean
   onPick: (word: BankWord, rect: DOMRect) => void
 }
@@ -37,10 +35,7 @@ export function MagnetDrawer({
   snap,
   onSnapChange,
   words,
-  usedIds,
-  isFull,
-  placedCount,
-  maxWords,
+  pileCounts,
   removeHint,
   onPick,
 }: Props) {
@@ -146,11 +141,6 @@ export function MagnetDrawer({
             {tab === 'images' && <span>Images</span>}
           </button>
         </div>
-        {tab === 'words' && (
-          <span className={`drawer__count ${isFull ? 'drawer__count--full' : ''}`}>
-            {placedCount}/{maxWords}
-          </span>
-        )}
       </motion.div>
 
       {/* only the part of the drawer that is on screen scrolls */}
@@ -160,28 +150,39 @@ export function MagnetDrawer({
         inert={snap === 'collapsed'}
       >
         {tab === 'words' ? (
-          <>
-            {isFull && <p className="drawer__note">Your fridge is full. Drag a word down here to swap it out.</p>}
-            <div className="bank">
-              {words.map((w) => {
-                const used = usedIds.has(w.id)
-                const disabled = used || isFull
-                return (
-                  <motion.button
-                    key={w.id}
-                    className="bank__item"
-                    disabled={disabled}
-                    animate={{ opacity: used ? 0.22 : isFull ? 0.5 : 1 }}
-                    whileTap={disabled ? undefined : { scale: 0.94 }}
-                    onClick={(e) => onPick(w, e.currentTarget.getBoundingClientRect())}
-                    aria-label={`Add ${w.text}`}
-                  >
-                    <Magnet text={w.text} />
-                  </motion.button>
-                )
-              })}
-            </div>
-          </>
+          // words can be used as often as you like, so they never run out
+          <div className="bank">
+            {words.map((w) => {
+              const count = pileCounts.get(w.id) ?? 0
+              return (
+                <motion.button
+                  key={w.id}
+                  className="bank__item"
+                  whileTap={{ scale: 0.94 }}
+                  onClick={(e) => onPick(w, e.currentTarget.getBoundingClientRect())}
+                  aria-label={`Collect ${w.text}`}
+                >
+                  <Magnet text={w.text} />
+                  <AnimatePresence>
+                    {count > 0 && (
+                      // Figma: a small black badge with the number in the pile
+                      <motion.span
+                        key="badge"
+                        className="bank__badge"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        exit={{ scale: 0 }}
+                        transition={{ duration: 0.16, ease: 'easeOut' }}
+                        aria-label={`${count} in the pile`}
+                      >
+                        {count}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </motion.button>
+              )
+            })}
+          </div>
         ) : (
           <p className="drawer__note drawer__note--empty">
             {tab === 'stickers' ? 'Stickers are coming soon.' : 'Images are coming soon.'}
