@@ -61,10 +61,10 @@ export function DayScreen({ date, onDate, onBack, onShare, onFavouritesFull }: P
 
       <div className="tool-column tool-column--day">
         <button className="icon-btn" aria-label="Back to calendar" onClick={onBack}>
-          <Icon name="chevronLeft" size={24} />
+          <Icon name="chevronLeft" size={40} />
         </button>
         <button className="icon-btn" aria-label="Share this poem" onClick={() => onShare(date)}>
-          <Icon name="shareUp" size={24} />
+          <Icon name="shareUp" size={40} />
         </button>
         <StarButton pinned={pinned} onClick={star} />
       </div>

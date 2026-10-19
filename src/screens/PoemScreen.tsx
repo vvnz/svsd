@@ -257,7 +257,7 @@ export function PoemScreen({ onMenu, onFavouritesFull }: Props) {
             navigator.vibrate?.(8)
           }}
         >
-          <Icon name="undo" size={25} />
+          <Icon name="undo" size={40} />
         </motion.button>
         <StarButton pinned={pinned} onClick={star} />
       </div>

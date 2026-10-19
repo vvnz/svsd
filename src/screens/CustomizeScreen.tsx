@@ -25,7 +25,7 @@ export function CustomizeScreen({ onBack, onSave }: Props) {
   return (
     <div className="screen" ref={ref}>
       <button className="icon-btn top-left" aria-label="Back" onClick={onBack}>
-        <Icon name="chevronLeft" size={24} />
+        <Icon name="chevronLeft" size={40} />
       </button>
       <button
         className="text-btn top-right"
@@ -78,10 +78,10 @@ export function CustomizeScreen({ onBack, onSave }: Props) {
         </motion.p>
         <div className="carousel__arrows">
           <button className="icon-btn" aria-label="Previous style" disabled={index === 0} onClick={() => go(-1)}>
-            <Icon name="arrowLeft" size={24} />
+            <Icon name="arrowLeft" size={40} />
           </button>
           <button className="icon-btn" aria-label="Next style" disabled={index === STYLES.length - 1} onClick={() => go(1)}>
-            <Icon name="arrowRight" size={24} />
+            <Icon name="arrowRight" size={40} />
           </button>
         </div>
       </div>

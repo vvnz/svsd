@@ -54,7 +54,7 @@ export function CalendarScreen({ mode, onMenu, onOpenDay, onToday, onPick, onCan
       {mode === 'pick' ? (
         <>
           <button className="icon-btn top-left" aria-label="Cancel" onClick={onCancelPick}>
-            <Icon name="chevronLeft" size={24} />
+            <Icon name="chevronLeft" size={40} />
           </button>
           <p className="pick-hint">pick a poem to pin</p>
         </>

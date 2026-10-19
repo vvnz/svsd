@@ -594,32 +594,40 @@ button {
 
 /* ---------- Shared screen chrome ---------- */
 
+/* every standalone icon button (back, undo, share, star, edit...) is 40px;
+   the side menu and the Add Magnets drawer size their own icons */
 .icon-btn {
   display: grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
+  width: 40px;
+  height: 40px;
   color: #000;
+}
+/* one line weight for every standalone icon, whatever its drawing's scale (Icon refits them) */
+.icon-btn .icon path[stroke] {
+  vector-effect: non-scaling-stroke;
+  stroke-width: 3px;
 }
 .icon-btn:disabled {
   opacity: 0.25;
   cursor: default;
 }
 
-/* the column of icons on the top left (share / edit / paint, Figma left 36 top 31, 8 apart) */
+/* the column of icons on the top left (share / edit / paint), Figma left 36 top 31 */
 .tool-column {
   position: absolute;
   left: 36px;
   top: 31px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  /* 40px icon buttons, 16px apart */
+  gap: 16px;
   z-index: 20;
 }
-/* back (or undo) sits a little apart from the icons below it */
+/* back (or undo) sits further from the icons below it: 24px */
 .tool-column--day .icon-btn:first-child,
 .tool-column--poem .icon-btn:first-child {
-  margin-bottom: 21px;
+  margin-bottom: 8px;
 }
 /* Figma: the poem page's undo sits 30px in, not 36 */
 .tool-column--poem {
@@ -1161,7 +1169,7 @@ button {
 }
 .star-btn__fill {
   position: absolute;
-  inset: 1px;
+  inset: 0;
   fill: #f6c945;
 }
 

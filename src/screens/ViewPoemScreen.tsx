@@ -22,10 +22,10 @@ export function ViewPoemScreen({ date, onShare, onBack }: Props) {
     <div className="screen" ref={ref}>
       <SteelBackdrop />
       <button className="icon-btn top-left" aria-label="Back" onClick={onBack}>
-        <Icon name="chevronLeft" size={24} />
+        <Icon name="chevronLeft" size={40} />
       </button>
       <button className="icon-btn top-right" aria-label="Share this poem" onClick={onShare}>
-        <Icon name="shareUp" size={24} />
+        <Icon name="shareUp" size={40} />
       </button>
       <p className="poem-date">{prettyDate(date)}</p>
 

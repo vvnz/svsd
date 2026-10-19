@@ -24,13 +24,13 @@ export function FavouritesScreen({ onMenu, onShare, onEdit, onCustomize, onOpen 
     <div className="screen screen--scroll-none" ref={ref}>
       <div className="tool-column">
         <button className="icon-btn" aria-label="Share your fridge" onClick={onShare}>
-          <Icon name="shareUp" size={24} />
+          <Icon name="shareUp" size={40} />
         </button>
         <button className="icon-btn" aria-label="Edit favourites" onClick={onEdit}>
-          <Icon name="edit" size={24} />
+          <Icon name="edit" size={40} />
         </button>
         <button className="icon-btn" aria-label="Customize fridge" onClick={onCustomize}>
-          <Icon name="paint" size={24} />
+          <Icon name="paint" size={40} />
         </button>
       </div>
 

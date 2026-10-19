@@ -40,10 +40,10 @@ export function EditFavouritesScreen({ draft, onChange, onAdd, onCancel, onSave,
           aria-label="Add a favourite"
           onClick={() => (full ? toast.show('Your fridge is full, remove one first') : onAdd())}
         >
-          <Icon name="plus" size={24} />
+          <Icon name="plus" size={40} />
         </button>
         <button className="icon-btn" aria-label="Cancel" onClick={onCancel}>
-          <Icon name="chevronLeft" size={24} />
+          <Icon name="chevronLeft" size={40} />
         </button>
       </div>
       <button className="text-btn top-right" onClick={onSave}>
