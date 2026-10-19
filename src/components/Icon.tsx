@@ -7,7 +7,7 @@ import whatsapp from '../assets/icons/whatsapp.svg?raw'
 import facebook from '../assets/icons/facebook.svg?raw'
 import x from '../assets/icons/x.svg?raw'
 import spotify from '../assets/icons/spotify.svg?raw'
-import back from '../assets/icons/back.svg?raw'
+import undo from '../assets/icons/undo.svg?raw'
 import arrowLeft from '../assets/icons/arrow-left.svg?raw'
 import home from '../assets/icons/home.svg?raw'
 import tabWords from '../assets/icons/tab-words.svg?raw'
@@ -35,7 +35,7 @@ const ICONS = {
   facebook,
   x,
   spotify,
-  back,
+  undo,
   arrowLeft,
   home,
   tabWords,

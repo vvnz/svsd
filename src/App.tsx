@@ -136,7 +136,7 @@ function Screens() {
                 onConnected={(s) => markConnected(s, route.from)}
               />
             )}
-            {route.name === 'poem' && <PoemScreen onBack={() => go({ name: 'connect' }, -1)} onMenu={menu} />}
+            {route.name === 'poem' && <PoemScreen onMenu={menu} />}
 
             {route.name === 'favourites' && (
               <FavouritesScreen
