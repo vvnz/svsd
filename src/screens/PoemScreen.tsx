@@ -258,7 +258,6 @@ export function PoemScreen({ onMenu }: { onMenu: (id: MenuId) => void }) {
               transition={{ duration: 0.2 }}
             >
               Tap a magnet to remove it
-              <br />
               <span>Tap anywhere else when you're done</span>
             </motion.p>
             <motion.button

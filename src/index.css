@@ -444,20 +444,25 @@ button {
   margin: 0;
   text-align: center;
   pointer-events: none;
+  /* Figma text style "body": DM Sans Regular 16, auto line height */
   font-family: var(--font-ui);
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 20px;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
   color: #fff;
 }
 /* words waiting in the pile sit in that spot, so go just above them */
 .delete-mode__hint--above-pile {
   bottom: 170px;
 }
+/* Figma text style "secondary": DM Sans Regular 13, auto line height */
 .delete-mode__hint span {
-  font-size: 12px;
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
   font-weight: 400;
-  opacity: 0.75;
+  line-height: normal;
+  color: var(--fill-3);
 }
 
 @keyframes wiggle {
