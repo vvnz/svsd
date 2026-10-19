@@ -99,20 +99,13 @@ button {
   color: #000;
 }
 
-.subtitle {
-  margin: 0;
-  font-family: var(--font-body);
-  font-size: 15px;
-  line-height: normal;
-  color: var(--fill-4);
-}
-
-/* Full-width bottom button, Figma "Button" (330 wide, 770 from top) */
+/* Full-width bottom button, Figma "Button" (18:366): 330 wide, 52 from the bottom */
 .cta {
   position: absolute;
-  left: 50%;
-  bottom: 53px;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
+  bottom: 52px;
+  margin: 0 auto;
   width: min(330px, calc(100% - 72px));
   display: flex;
   align-items: center;
@@ -139,7 +132,6 @@ button {
   cursor: default;
 }
 .cta:focus-visible,
-.source:focus-visible,
 .icon-btn:focus-visible,
 .home-tab:focus-visible,
 .tab:focus-visible {
@@ -166,142 +158,26 @@ button {
   text-align: center;
 }
 
-/* ---------- Onboarding (connect + sign in) ---------- */
+/* ---------- Privacy onboarding (after the splash) ----------
+   Design system like Settings: text + colour styles, 4px spacing. */
 
-.onboard {
-  touch-action: auto;
+.privacy {
+  touch-action: pan-y;
 }
-
-.onboard__header {
+/* scrolls on short screens; leaves room for the button pinned at the bottom */
+.privacy__scroll {
   position: absolute;
-  top: 70px;
-  left: 0;
-  right: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  text-align: center;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  padding-bottom: 128px;
 }
-
-.sources {
-  position: absolute;
-  top: 275px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: grid;
-  grid-template-columns: repeat(3, 63px);
-  column-gap: 26px;
-  row-gap: 35px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.privacy__scroll::-webkit-scrollbar {
+  display: none;
 }
-
-.source {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 9px;
-  width: 63px;
-}
-
-.source__icon {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 43px;
-  height: 43px;
-  color: #000;
-  transition: transform 0.15s;
-}
-.source:active .source__icon {
-  transform: scale(0.92);
-}
-
-.source__check {
-  position: absolute;
-  right: -5px;
-  bottom: -3px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--black-3);
-  box-shadow: 0 0 0 2px var(--surface-2);
-}
-.source__check::after {
-  content: '';
-  position: absolute;
-  left: 4.5px;
-  top: 2.5px;
-  width: 3px;
-  height: 6px;
-  border: solid #fff;
-  border-width: 0 1.6px 1.6px 0;
-  transform: rotate(45deg);
-}
-
-.source__name {
-  font-size: 13px;
-  line-height: normal;
-  color: #52525b;
-}
-.source--on .source__name {
-  color: var(--black-3);
-}
-
-.signin__back {
-  position: absolute;
-  left: 33px;
-  top: 52px;
-  width: 24px;
-  height: 24px;
-  display: grid;
-  place-items: center;
-  z-index: 2;
-}
-
-.signin__tile {
-  position: absolute;
-  left: 50%;
-  top: calc(50% - 148.5px);
-  width: 119px;
-  height: 119px;
-  margin: -59.5px 0 0 -59.5px;
-  display: grid;
-  place-items: center;
-  background: var(--surface-1);
-  border: 1px solid var(--fill-2);
-  border-radius: 8px;
-  color: #000;
-}
-
-.signin__done {
-  position: absolute;
-  right: -10px;
-  top: -10px;
-  width: 30px;
-  height: 30px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--black-3);
-  color: #fff;
-  box-shadow: 0 0 0 3px var(--surface-2);
-}
-
-.signin__note {
-  position: absolute;
-  left: 50%;
-  top: 437px;
-  transform: translateX(-50%);
-  width: 246px;
-  margin: 0;
-  font-family: var(--font-body);
-  font-size: 15px;
-  line-height: normal;
-  color: var(--fill-4);
-  text-align: center;
+.privacy__body {
+  padding: 48px 36px 0;
 }
 
 /* ---------- Poem screen ---------- */
@@ -327,17 +203,6 @@ button {
   position: absolute;
   inset: 0;
   background: var(--surface-2);
-}
-
-.back-btn {
-  position: absolute;
-  left: 30px;
-  top: 31px;
-  width: 24px;
-  height: 24px;
-  display: grid;
-  place-items: center;
-  z-index: 5;
 }
 
 .home-tab {
@@ -421,6 +286,83 @@ button {
   position: absolute;
   inset: 0;
   pointer-events: none;
+}
+
+/* ---------- Delete Mode ---------- */
+
+/* Figma 88:5505: #1B1B1B at 40% over everything except the magnets */
+.delete-mode__dim {
+  position: absolute;
+  inset: 0;
+  z-index: 35;
+  background: rgba(27, 27, 27, 0.4);
+  cursor: default;
+}
+
+/* where the Clear fridge button used to be, just above the closed drawer bar */
+.delete-mode__hint {
+  position: absolute;
+  bottom: 100px;
+  left: 0;
+  right: 0;
+  z-index: 41;
+  margin: 0;
+  text-align: center;
+  pointer-events: none;
+  /* Figma text style "body": DM Sans Regular 16, auto line height */
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
+  color: #fff;
+}
+/* words waiting in the pile sit in that spot, so go just above them */
+.delete-mode__hint--above-pile {
+  bottom: 170px;
+}
+/* Figma text style "secondary": DM Sans Regular 13, auto line height */
+.delete-mode__hint span {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: normal;
+  color: var(--fill-3);
+}
+
+@keyframes wiggle {
+  0%,
+  100% {
+    rotate: 0deg;
+  }
+  25% {
+    rotate: -1.6deg;
+  }
+  75% {
+    rotate: 1.6deg;
+  }
+}
+.wiggle {
+  animation: wiggle 0.32s ease-in-out infinite;
+}
+
+/* .text-btn sets black text later in the file, so this needs the extra class */
+.text-btn.delete-mode__clear {
+  z-index: 41;
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* a word dragged out of the drawer, centred a little above the finger */
+.held-magnet {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 45;
+  translate: -50% -80%;
+  pointer-events: none;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.2));
 }
 
 .fridge-magnet {
@@ -559,16 +501,6 @@ button {
   color: var(--black-3);
 }
 
-.drawer__count {
-  font-size: 13px;
-  color: var(--fill-4);
-  font-variant-numeric: tabular-nums;
-}
-
-.drawer__count--full {
-  color: #fff;
-}
-
 .drawer__body {
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -582,23 +514,61 @@ button {
 }
 
 /* Figma rows: first magnet flush left, second centered, third flush right */
+/* Figma: rows of three, flush with the 36px margins, equal gaps between (space-between) */
 .bank {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  row-gap: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
-.bank__item:nth-child(3n + 1) {
-  justify-self: start;
+.bank__row {
+  display: flex;
+  justify-content: space-between;
 }
-.bank__item:nth-child(3n + 2) {
-  justify-self: center;
-}
-.bank__item:nth-child(3n) {
-  justify-self: end;
+.bank__item {
+  /* hold-to-drag: no text selection or iOS callout on a long press */
+  -webkit-touch-callout: none;
+  user-select: none;
 }
 
-.bank__item:disabled {
-  cursor: default;
+.bank__item {
+  position: relative;
+}
+
+/* Figma: how many of this word are waiting in the pile */
+.bank__badge {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px solid #fff;
+  background: var(--black-3);
+  color: #fff;
+  font-family: 'Patrick Hand', cursive;
+  font-size: 13px;
+  line-height: 1;
+}
+
+/* ---------- Collected pile (tap to collect) ---------- */
+
+/* sits above the drawer, below the side menu */
+.pile {
+  position: absolute;
+  z-index: 24;
+  width: 0;
+  height: 52px;
+}
+
+.pile__item {
+  position: absolute;
+  left: 0;
+  top: 0;
+  translate: -50% 0;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.12));
 }
 
 .drawer__note {
@@ -646,8 +616,14 @@ button {
   gap: 8px;
   z-index: 20;
 }
-.tool-column--day .icon-btn:first-child {
+/* back (or undo) sits a little apart from the icons below it */
+.tool-column--day .icon-btn:first-child,
+.tool-column--poem .icon-btn:first-child {
   margin-bottom: 21px;
+}
+/* Figma: the poem page's undo sits 30px in, not 36 */
+.tool-column--poem {
+  left: 30px;
 }
 
 .top-left {
@@ -672,6 +648,11 @@ button {
   color: #000;
 }
 
+/* the bottom of today's poem holds the drawer bar and the pile, so toasts sit under the top icons */
+.poem-screen .toast {
+  top: 76px;
+  bottom: auto;
+}
 .day-screen .toast {
   bottom: 182px;
 }
@@ -1184,6 +1165,22 @@ button {
   fill: #f6c945;
 }
 
+/* Edit Favourites, opened from starring today's poem on a full fridge.
+   Figma text style "body": DM Sans Regular 16 */
+.swap-hint {
+  position: absolute;
+  top: 112px; /* centred in the gap between the top icons and the fridge */
+  left: 36px;
+  right: 36px;
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
+  color: var(--black-3);
+}
+
 .day-strip {
   position: absolute;
   left: 0;
@@ -1215,33 +1212,57 @@ button {
   flex: none;
 }
 
-/* ---------- Settings (built from the onboarding pieces) ---------- */
+/* ---------- Settings ----------
+   Built on the design system: Figma text styles, colour styles, and the 4px spacing
+   variable (every margin, padding, gap and height is a multiple of 4).
+   Mobile: 36px side margins like the other screens, and nothing tappable under 40px tall. */
 
 .settings {
   touch-action: pan-y;
 }
-.settings__body {
+/* the whole page scrolls, header included, so nothing is cut off behind it */
+.settings__scroll {
   position: absolute;
-  top: 214px;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 0 36px 40px;
+  inset: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
   scrollbar-width: none;
   user-select: auto;
 }
-.settings__body::-webkit-scrollbar {
+.settings__scroll::-webkit-scrollbar {
   display: none;
 }
-.settings__section {
-  margin-bottom: 20px;
+.settings__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 72px 36px 0;
+  text-align: center;
 }
+/* text style "body" in fill 4 */
+.settings__subtitle {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
+  color: var(--fill-4);
+}
+.settings__body {
+  /* side margin + room for the menu tab on the right edge is already in the 36px */
+  padding: 48px 36px 48px;
+}
+.settings__section {
+  margin-bottom: 24px;
+}
+/* text style "secondary" */
 .settings__label {
-  margin: 0 0 8px 2px;
-  font-family: var(--font-body);
+  margin: 0 0 8px;
+  font-family: var(--font-ui);
   font-weight: 400;
   font-size: 13px;
+  line-height: normal;
   color: var(--fill-4);
 }
 .card {
@@ -1250,15 +1271,18 @@ button {
   border-radius: 4px;
   overflow: hidden;
 }
+/* text style "body" */
 .row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
   min-height: 52px;
-  padding: 0 14px 0 16px;
+  padding: 0 16px;
   font-family: var(--font-ui);
-  font-size: 15px;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
   text-align: left;
   color: var(--black-3);
 }
@@ -1268,46 +1292,60 @@ button {
 .row__label {
   flex: 1;
 }
+/* text style "secondary" */
 .row__value {
+  font-size: 13px;
   color: var(--fill-4);
-  font-size: 14px;
 }
+/* text style "body" */
 .row__input {
-  width: 130px;
+  width: 128px;
+  height: 36px;
   border: 0;
   background: var(--fill-1);
   border-radius: 4px;
-  padding: 7px 10px;
-  font-family: var(--font-magnet);
-  font-size: 19px;
-  line-height: 1;
-  color: var(--black-4);
+  padding: 0 12px;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: normal;
+  color: var(--black-3);
   text-align: right;
   outline: none;
 }
 .row__input:focus {
-  box-shadow: 0 0 0 1.5px var(--black-4);
+  box-shadow: 0 0 0 1px var(--black-4);
 }
+/* text style "secondary" */
 .row__hint {
   margin: 0;
-  padding: 0 16px 12px;
-  font-family: var(--font-body);
-  font-size: 12px;
+  padding: 0 16px 16px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: normal;
   color: var(--fill-4);
+}
+/* keep the divider when a hint line sits between two rows */
+.row__hint + .row {
+  border-top: 1px solid var(--fill-1);
 }
 .row--chips {
   flex-wrap: wrap;
-  gap: 6px;
-  padding: 2px 14px 14px 16px;
+  gap: 8px;
+  padding: 0 16px 16px;
   min-height: 0;
   border-top: 0 !important;
 }
+/* text style "secondary"; 40px tall so it's easy to tap */
 .chip {
-  padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 12px;
   border-radius: 4px;
   border: 1px solid var(--fill-2);
   font-family: var(--font-ui);
   font-size: 13px;
+  line-height: normal;
   color: var(--black-4);
 }
 .chip.is-on {
@@ -1315,13 +1353,18 @@ button {
   border-color: var(--black-3);
   color: #fff;
 }
+.chip:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+/* only design system colours: no red, so destructive rows stay black 3 */
 .row--danger {
-  color: #b42318;
+  color: var(--black-3);
 }
 .toggle {
   width: 44px;
-  height: 26px;
-  padding: 3px;
+  height: 24px;
+  padding: 4px;
   border-radius: 999px;
   background: var(--fill-2);
   display: flex;
@@ -1333,16 +1376,18 @@ button {
   justify-content: flex-end;
 }
 .toggle__knob {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--surface-1);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
+/* text style "secondary" */
 .settings__note {
   margin: 8px 0 0;
   text-align: center;
-  font-family: var(--font-body);
+  font-family: var(--font-ui);
   font-size: 13px;
+  line-height: normal;
   color: var(--fill-4);
 }

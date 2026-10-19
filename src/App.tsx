@@ -2,8 +2,7 @@ import { useCallback, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 
 import { SplashScreen } from './screens/SplashScreen'
-import { ConnectScreen } from './screens/ConnectScreen'
-import { SignInScreen } from './screens/SignInScreen'
+import { PrivacyScreen } from './screens/PrivacyScreen'
 import { PoemScreen } from './screens/PoemScreen'
 import { FavouritesScreen } from './screens/FavouritesScreen'
 import { EditFavouritesScreen } from './screens/EditFavouritesScreen'
@@ -14,33 +13,22 @@ import { CalendarScreen } from './screens/CalendarScreen'
 import { DayScreen } from './screens/DayScreen'
 import { SettingsScreen } from './screens/SettingsScreen'
 import type { MenuId } from './components/SideMenu'
-import type { Source } from './data/sources'
 import { AppStateProvider, useApp } from './state/appState'
 import { todayKey } from './state/useFridge'
 
 type Route =
   | { name: 'splash' }
-  | { name: 'connect'; from?: 'settings' }
-  | { name: 'signin'; source: Source; from?: 'settings' }
+  | { name: 'privacy' }
   | { name: 'poem' }
   | { name: 'favourites' }
-  | { name: 'editFavourites'; draft: (string | null)[] }
+  // swapIn: a starred poem waiting for a slot on a full fridge; back: where to return after Save / Cancel
+  | { name: 'editFavourites'; draft: (string | null)[]; swapIn?: string; back?: Route }
   | { name: 'viewPoem'; date: string }
   | { name: 'customize'; from: 'favourites' | 'settings' }
   | { name: 'share'; subject: string; back?: Route }
   | { name: 'calendar'; pick?: (string | null)[] } // pick: choosing a poem for the edit draft
   | { name: 'day'; date: string }
   | { name: 'settings' }
-
-const CONNECTED_KEY = 'svsd:connected'
-
-function loadConnected(): Set<string> {
-  try {
-    return new Set(JSON.parse(localStorage.getItem(CONNECTED_KEY) ?? '[]') as string[])
-  } catch {
-    return new Set()
-  }
-}
 
 // Screens slide like a stack: forward pushes in from the right, back slides out to the right.
 const slide = {
@@ -62,7 +50,6 @@ export default function App() {
 function Screens() {
   const [route, setRoute] = useState<Route>({ name: 'splash' })
   const [dir, setDir] = useState(1)
-  const [connected, setConnected] = useState(loadConnected)
   const app = useApp()
 
   const go = useCallback(
@@ -75,38 +62,23 @@ function Screens() {
     [app.refreshToday],
   )
 
-  const finishSplash = useCallback(() => go({ name: 'connect' }), [go])
+  // onboarding: splash, then the privacy choices, then today's fridge
+  const finishSplash = useCallback(() => go({ name: 'privacy' }), [go])
 
   // the pull-out menu: favourites, calendar, settings, share, or back to today's fridge
   const menu = (id: MenuId) => {
-    if (id === 'home') go({ name: 'poem' }, -1)
+    if (id === 'poem') go({ name: 'poem' }, -1)
     else if (id === 'favourite') go({ name: 'favourites' })
     else if (id === 'calendar') go({ name: 'calendar' })
-    else if (id === 'settings') go({ name: 'settings' })
-    else go({ name: 'share', subject: 'favourites' })
-  }
-
-  function markConnected(source: Source, from?: 'settings') {
-    setConnected((prev) => {
-      const next = new Set(prev).add(source.id)
-      try {
-        localStorage.setItem(CONNECTED_KEY, JSON.stringify([...next]))
-      } catch {
-        // ignore
-      }
-      return next
-    })
-    go({ name: 'connect', from }, -1)
+    else go({ name: 'settings' })
   }
 
   const key =
-    route.name === 'signin'
-      ? `signin-${route.source.id}`
-      : route.name === 'day'
-        ? 'day' // the day view animates its own poem changes
-        : route.name === 'calendar'
-          ? `calendar-${route.pick ? 'pick' : 'browse'}`
-          : route.name
+    route.name === 'day'
+      ? 'day' // the day view animates its own poem changes
+      : route.name === 'calendar'
+        ? `calendar-${route.pick ? 'pick' : 'browse'}`
+        : route.name
 
   return (
     <main className="stage">
@@ -123,21 +95,13 @@ function Screens() {
             transition={{ type: 'spring', stiffness: 320, damping: 36 }}
           >
             {route.name === 'splash' && <SplashScreen onDone={finishSplash} />}
-            {route.name === 'connect' && (
-              <ConnectScreen
-                connected={connected}
-                onPick={(source) => go({ name: 'signin', source, from: route.from })}
-                onDone={() => (route.from === 'settings' ? go({ name: 'settings' }, -1) : go({ name: 'poem' }))}
-              />
-            )}
-            {route.name === 'signin' && (
-              <SignInScreen
-                source={route.source}
-                onBack={() => go({ name: 'connect', from: route.from }, -1)}
-                onConnected={(s) => markConnected(s, route.from)}
-              />
-            )}
-            {route.name === 'poem' && <PoemScreen onBack={() => go({ name: 'connect' }, -1)} onMenu={menu} />}
+            {route.name === 'privacy' && <PrivacyScreen onDone={() => go({ name: 'poem' })} />}
+            {route.name === 'poem' && <PoemScreen
+                onMenu={menu}
+                onFavouritesFull={() =>
+                  go({ name: 'editFavourites', draft: app.favourites, swapIn: todayKey(), back: { name: 'poem' } })
+                }
+              />}
 
             {route.name === 'favourites' && (
               <FavouritesScreen
@@ -151,12 +115,14 @@ function Screens() {
             {route.name === 'editFavourites' && (
               <EditFavouritesScreen
                 draft={route.draft}
-                onChange={(draft) => setRoute({ name: 'editFavourites', draft })}
+                swapIn={route.swapIn}
+                onChange={(draft) => setRoute({ ...route, draft })}
                 onAdd={() => go({ name: 'calendar', pick: route.draft })}
-                onCancel={() => go({ name: 'favourites' }, -1)}
+                // came from starring today's poem: go back there
+                onCancel={() => go(route.back ?? { name: 'favourites' }, -1)}
                 onSave={() => {
                   app.setFavourites(route.draft)
-                  go({ name: 'favourites' }, -1)
+                  go(route.back ?? { name: 'favourites' }, -1)
                 }}
               />
             )}
@@ -198,6 +164,9 @@ function Screens() {
             {route.name === 'day' && (
               <DayScreen
                 date={route.date}
+                onFavouritesFull={(date) =>
+                  go({ name: 'editFavourites', draft: app.favourites, swapIn: date, back: { name: 'day', date } })
+                }
                 onDate={(date) => setRoute({ name: 'day', date })}
                 onBack={() => go({ name: 'calendar' }, -1)}
                 onShare={(date) => go({ name: 'share', subject: date, back: { name: 'day', date } })}
@@ -205,10 +174,8 @@ function Screens() {
             )}
             {route.name === 'settings' && (
               <SettingsScreen
-                connectedCount={connected.size}
                 onMenu={menu}
                 onCustomize={() => go({ name: 'customize', from: 'settings' })}
-                onConnect={() => go({ name: 'connect', from: 'settings' })}
                 onClearToday={() => {
                   try {
                     localStorage.removeItem(`svsd:fridge:${todayKey()}`)

@@ -36,7 +36,7 @@ Hi-fis are in the section **"hello fi"** (node `20:1330`). Key frames:
 | Fridge - Customize fridge | 43:489 |
 | Share Screen | 43:630 |
 | Calendar (month / day) | 46:593 / 54:3592 |
-| Splash, Connect | 9:1075, 46:889 |
+| Splash | 9:1075 |
 
 When building a screen, pull it with the Figma MCP (`get_design_context` on its node) and match it.
 Reuse the tokens in `src/index.css` instead of hardcoding new colors.
@@ -51,30 +51,34 @@ shadow `1px 2px 4.8px rgba(0,0,0,.25), 1px 1px 0 rgba(47,47,47,.6)`.
 
 ## Code map
 
-- `src/App.tsx` the screen flow and routes: splash → connect → sign in → today's fridge, plus favourites,
+- `src/App.tsx` the screen flow and routes: splash → privacy → today's fridge, plus favourites,
   edit favourites, view poem, customize, share, calendar (+ pick mode), day, settings (stack-style slide transitions)
-- `src/screens/SplashScreen.tsx`, `ConnectScreen.tsx`, `SignInScreen.tsx` onboarding. Connecting an app is
-  **simulated** (no real sign-in), connected apps are remembered in localStorage
+- `src/screens/SplashScreen.tsx`, `PrivacyScreen.tsx` onboarding. The privacy screen (not in Figma) replaced the
+  old "connect app" + sign-in screens: it asks what the fridge may use (photos / location / music apps), the same
+  `PrivacyOptions` as Settings
 - `src/screens/PoemScreen.tsx` today's fridge: placing, dragging, removing magnets
 - `src/components/Icon.tsx` + `src/assets/icons/` the hand-drawn icons, exported from Figma as SVG
   (they draw in `currentColor`)
 - `src/components/MagnetDrawer.tsx` the "Add Magnets" bottom sheet (collapsed / half / full)
-- `src/components/SideMenu.tsx` the pull-out home tab on the right edge (Figma component "menu",
-  75:5317). Star → favourites, calendar → calendar, settings → settings, share → share. On those screens
-  their own button turns into a fridge icon that goes back to today's poem
+- `src/components/SideMenu.tsx` the pull-out tab on the right edge (Figma component set "Menu",
+  88:5593). The tab shows the screen you're on (poem, fridge, calendar, settings); the panel holds the
+  other three. Share isn't in the menu; it's reached from the favourites fridge
 - `src/screens/FavouritesScreen.tsx`, `EditFavouritesScreen.tsx`, `ViewPoemScreen.tsx`, `CustomizeScreen.tsx`
   the favourites fridge flow. Edits are a draft until Save; the + opens the calendar in pick mode
 - `src/screens/CalendarScreen.tsx`, `DayScreen.tsx` month list of day tiles, and one day's poem with a tile strip
 - `src/screens/ShareScreen.tsx` story card + templates + targets. Sending is **simulated** (toasts)
-- `src/screens/SettingsScreen.tsx` not in Figma; built from the onboarding pieces. Reminders are **simulated**
+- `src/screens/SettingsScreen.tsx` not in Figma; built on the design system (text + colour styles, 4px spacing). Whole page scrolls. Reminders are **simulated**
+- `src/components/PrivacyOptions.tsx` the privacy choices (photos / location / music apps), shared by Settings and
+  onboarding. Options from the Figma note 75:5378. Saved in `appState` as `privacy`; **simulated**, nothing is read
 - `src/components/Fridge.tsx` the fridge drawing (steel / graphite / butter) and the 6 favourite `SLOTS`
 - `src/components/PoemCanvas.tsx` draws a saved poem at its page coordinates; `FitPoem` shrinks one into a box
 - `src/components/CalendarTile.tsx`, `SteelBackdrop.tsx`, `Toast.tsx` small shared pieces
 - `src/state/appState.tsx` favourites, fridge style, settings (localStorage) and `poemFor(date)`
 - `src/data/poems.ts` seeded past poems so the calendar and favourites look lived-in
 - `src/components/FridgeMagnet.tsx` one draggable magnet on the fridge (fly-in + settle wobble)
+- `src/components/MagnetPile.tsx` the pile of collected words; tap it to release them
 - `src/components/Magnet.tsx` the magnet tile visual, shared everywhere
-- `src/state/useFridge.ts` the day's poem, autosaved to localStorage per date
+- `src/state/useFridge.ts` the day's poem and pile, autosaved to localStorage per date, plus undo history (in memory)
 - `src/data/wordBank.ts` sample word bank (personal words are **simulated** for now)
 - `src/lib/custom-effect-runtime/` + `src/lib/custom-effects/` Figma's shader runtime and the
   "Fridge enamel texture" and brushed steel shaders, copied verbatim from Figma (params in `src/lib/shaders.ts`). Don't edit these. The texture needs
@@ -82,11 +86,17 @@ shadow `1px 2px 4.8px rgba(0,0,0,.25), 1px 1px 0 rgba(47,47,47,.6)`.
 
 ## Product decisions so far
 
-- One fridge per day, autosaves, no save button. Max 20 words on the fridge.
-- Tap a word in the bank to add it; drag magnets to rearrange; drag one onto the drawer to remove it.
+- One fridge per day, autosaves, no save button. No word limit, and words can be reused as often as you like.
+- Tap to collect (Figma section "Tap to Collect Interaction", 158:4883): tapping a word in the bank drops a copy
+  into a pile at the bottom of the screen (the bank word shows a count badge); tap the pile to scatter them all
+  onto the fridge. Or hold a word (350ms, so swipes still scroll) and drag it straight onto the fridge. Drag magnets to rearrange; drag one onto the drawer to remove it. Undo steps back through all of it.
+- Delete Mode (Figma 88:5505): long press a magnet; everything but the magnets dims and they wiggle. Tap a magnet to
+  delete it, "Clear" (top right) removes them all (the pile stays), tap the dim layer to finish. Undo brings them back.
 - Where personal words come from is **undecided**. Reading messaging apps isn't possible
   (iMessage/Instagram/etc. don't allow it), so don't build integrations; keep sample words.
 - Favorites fridge has 6 slots. Favourites show only a poem's words (photo days show their photo).
+- Star a poem (today's, under undo; or any day in the calendar) to pin it. If all 6 slots are taken, Edit Favourites opens in
+  swap mode: tap a poem's badge to swap it for the starred one, then Save (or Cancel) goes back where you were.
 
 ## Team workflow
 

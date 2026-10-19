@@ -7,7 +7,7 @@ import whatsapp from '../assets/icons/whatsapp.svg?raw'
 import facebook from '../assets/icons/facebook.svg?raw'
 import x from '../assets/icons/x.svg?raw'
 import spotify from '../assets/icons/spotify.svg?raw'
-import back from '../assets/icons/back.svg?raw'
+import undo from '../assets/icons/undo.svg?raw'
 import arrowLeft from '../assets/icons/arrow-left.svg?raw'
 import home from '../assets/icons/home.svg?raw'
 import tabWords from '../assets/icons/tab-words.svg?raw'
@@ -25,6 +25,7 @@ import minus from '../assets/icons/minus.svg?raw'
 import arrowRight from '../assets/icons/arrow-right.svg?raw'
 import chevronLeft from '../assets/icons/chevron-left.svg?raw'
 import download from '../assets/icons/download.svg?raw'
+import poem from '../assets/icons/poem.svg?raw'
 
 const ICONS = {
   fridge,
@@ -34,7 +35,7 @@ const ICONS = {
   facebook,
   x,
   spotify,
-  back,
+  undo,
   arrowLeft,
   home,
   tabWords,
@@ -52,6 +53,7 @@ const ICONS = {
   arrowRight,
   chevronLeft,
   download,
+  poem,
 }
 
 export type IconName = keyof typeof ICONS
