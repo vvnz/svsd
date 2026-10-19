@@ -1336,33 +1336,57 @@ button {
   flex: none;
 }
 
-/* ---------- Settings (built from the onboarding pieces) ---------- */
+/* ---------- Settings ----------
+   Built on the design system: Figma text styles, colour styles, and the 4px spacing
+   variable (every margin, padding, gap and height is a multiple of 4).
+   Mobile: 36px side margins like the other screens, and nothing tappable under 40px tall. */
 
 .settings {
   touch-action: pan-y;
 }
-.settings__body {
+/* the whole page scrolls, header included, so nothing is cut off behind it */
+.settings__scroll {
   position: absolute;
-  top: 214px;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 0 36px 40px;
+  inset: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
   scrollbar-width: none;
   user-select: auto;
 }
-.settings__body::-webkit-scrollbar {
+.settings__scroll::-webkit-scrollbar {
   display: none;
 }
-.settings__section {
-  margin-bottom: 20px;
+.settings__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 72px 36px 0;
+  text-align: center;
 }
+/* text style "body" in fill 4 */
+.settings__subtitle {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
+  color: var(--fill-4);
+}
+.settings__body {
+  /* side margin + room for the menu tab on the right edge is already in the 36px */
+  padding: 48px 36px 48px;
+}
+.settings__section {
+  margin-bottom: 24px;
+}
+/* text style "secondary" */
 .settings__label {
-  margin: 0 0 8px 2px;
-  font-family: var(--font-body);
+  margin: 0 0 8px;
+  font-family: var(--font-ui);
   font-weight: 400;
   font-size: 13px;
+  line-height: normal;
   color: var(--fill-4);
 }
 .card {
@@ -1371,15 +1395,18 @@ button {
   border-radius: 4px;
   overflow: hidden;
 }
+/* text style "body" */
 .row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
   min-height: 52px;
-  padding: 0 14px 0 16px;
+  padding: 0 16px;
   font-family: var(--font-ui);
-  font-size: 15px;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
   text-align: left;
   color: var(--black-3);
 }
@@ -1389,31 +1416,36 @@ button {
 .row__label {
   flex: 1;
 }
+/* text style "secondary" */
 .row__value {
+  font-size: 13px;
   color: var(--fill-4);
-  font-size: 14px;
 }
+/* text style "body" */
 .row__input {
-  width: 130px;
+  width: 128px;
+  height: 36px;
   border: 0;
   background: var(--fill-1);
   border-radius: 4px;
-  padding: 7px 10px;
-  font-family: var(--font-magnet);
-  font-size: 19px;
-  line-height: 1;
-  color: var(--black-4);
+  padding: 0 12px;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: normal;
+  color: var(--black-3);
   text-align: right;
   outline: none;
 }
 .row__input:focus {
-  box-shadow: 0 0 0 1.5px var(--black-4);
+  box-shadow: 0 0 0 1px var(--black-4);
 }
+/* text style "secondary" */
 .row__hint {
   margin: 0;
-  padding: 0 16px 12px;
-  font-family: var(--font-body);
-  font-size: 12px;
+  padding: 0 16px 16px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: normal;
   color: var(--fill-4);
 }
 /* keep the divider when a hint line sits between two rows */
@@ -1422,17 +1454,22 @@ button {
 }
 .row--chips {
   flex-wrap: wrap;
-  gap: 6px;
-  padding: 2px 14px 14px 16px;
+  gap: 8px;
+  padding: 0 16px 16px;
   min-height: 0;
   border-top: 0 !important;
 }
+/* text style "secondary"; 40px tall so it's easy to tap */
 .chip {
-  padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 12px;
   border-radius: 4px;
   border: 1px solid var(--fill-2);
   font-family: var(--font-ui);
   font-size: 13px;
+  line-height: normal;
   color: var(--black-4);
 }
 .chip.is-on {
@@ -1441,16 +1478,17 @@ button {
   color: #fff;
 }
 .chip:disabled {
-  opacity: 0.35;
+  opacity: 0.4;
   cursor: default;
 }
+/* only design system colours: no red, so destructive rows stay black 3 */
 .row--danger {
-  color: #b42318;
+  color: var(--black-3);
 }
 .toggle {
   width: 44px;
-  height: 26px;
-  padding: 3px;
+  height: 24px;
+  padding: 4px;
   border-radius: 999px;
   background: var(--fill-2);
   display: flex;
@@ -1462,16 +1500,18 @@ button {
   justify-content: flex-end;
 }
 .toggle__knob {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--surface-1);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
+/* text style "secondary" */
 .settings__note {
   margin: 8px 0 0;
   text-align: center;
-  font-family: var(--font-body);
+  font-family: var(--font-ui);
   font-size: 13px;
+  line-height: normal;
   color: var(--fill-4);
 }

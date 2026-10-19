@@ -10,10 +10,8 @@ import { useApp } from '../state/appState'
 import { useScreenSize } from '../state/useScreenSize'
 
 type Props = {
-  connectedCount: number
   onMenu: (id: MenuId) => void
   onCustomize: () => void
-  onConnect: () => void
   onClearToday: () => void
   onReplayOnboarding: () => void
 }
@@ -24,13 +22,12 @@ const timeLabel = (t: string) => {
   return `${((h! + 11) % 12) + 1}:${String(m).padStart(2, '0')} ${h! < 12 ? 'am' : 'pm'}`
 }
 
-// Not in the Figma file: built from the same pieces as onboarding
-// (Benne title, Inter subtitle, white cards with the fill-2 border, DM Sans rows, hand-drawn icons).
+// Not in the Figma file: built from the design system (text styles, colour styles,
+// 4px spacing, white cards with the fill-2 border, hand-drawn icons).
+// The whole page scrolls, header included; the side menu stays put.
 export function SettingsScreen({
-  connectedCount,
   onMenu,
   onCustomize,
-  onConnect,
   onClearToday,
   onReplayOnboarding,
 }: Props) {
@@ -42,104 +39,101 @@ export function SettingsScreen({
     <div className="screen settings" ref={ref}>
       <SideMenu screenWidth={size.width} current="settings" onSelect={onMenu} />
 
-      <header className="onboard__header settings__header">
-        <h1 className="title">settings</h1>
-        <p className="subtitle">make the fridge yours</p>
-      </header>
+      <div className="settings__scroll">
+        <header className="settings__header">
+          <h1 className="title">settings</h1>
+          <p className="settings__subtitle">make the fridge yours</p>
+        </header>
 
-      <motion.div
-        className="settings__body"
-        initial="hidden"
-        animate="show"
-        variants={{ show: { transition: { staggerChildren: 0.05 } } }}
-      >
-        <Section label="you">
-          <label className="row">
-            <span className="row__label">your name</span>
-            <input
-              className="row__input"
-              value={settings.name}
-              maxLength={16}
-              placeholder="name"
-              onChange={(e) => updateSettings({ name: e.target.value.toLowerCase() })}
-            />
-          </label>
-          <p className="row__hint">shows on your share cards as “{settings.name.trim() || 'my'}'s fridge”</p>
-        </Section>
+        <motion.div
+          className="settings__body"
+          initial="hidden"
+          animate="show"
+          variants={{ show: { transition: { staggerChildren: 0.05 } } }}
+        >
+          <Section label="you">
+            <label className="row">
+              <span className="row__label">your name</span>
+              <input
+                className="row__input"
+                value={settings.name}
+                maxLength={16}
+                placeholder="name"
+                onChange={(e) => updateSettings({ name: e.target.value.toLowerCase() })}
+              />
+            </label>
+            <p className="row__hint">shows on your share cards as “{settings.name.trim() || 'my'}'s fridge”</p>
+          </Section>
 
-        <Section label="fridge">
-          <button className="row" onClick={onCustomize}>
-            <span className="row__label">fridge style</span>
-            <span className="row__value">{STYLE_NAMES[fridgeStyle]}</span>
-            <Icon name="arrowRight" size={18} />
-          </button>
-          <button className="row" onClick={onConnect}>
-            <span className="row__label">connected apps</span>
-            <span className="row__value">{connectedCount ? `${connectedCount} connected` : 'none yet'}</span>
-            <Icon name="arrowRight" size={18} />
-          </button>
-        </Section>
+          <Section label="fridge">
+            <button className="row" onClick={onCustomize}>
+              <span className="row__label">fridge style</span>
+              <span className="row__value">{STYLE_NAMES[fridgeStyle]}</span>
+              <Icon name="arrowRight" size={20} />
+            </button>
+          </Section>
 
-        <Section label="privacy">
-          <PrivacyOptions />
-        </Section>
+          <Section label="privacy">
+            <PrivacyOptions />
+          </Section>
 
-        <Section label="reminders">
-          <div className="row">
-            <span className="row__label">daily poem reminder</span>
-            <Toggle on={settings.reminder} onChange={(reminder) => updateSettings({ reminder })} />
-          </div>
-          {settings.reminder && (
-            <div className="row row--chips">
-              {TIMES.map((t) => (
-                <button
-                  key={t}
-                  className={`chip ${settings.reminderTime === t ? 'is-on' : ''}`}
-                  onClick={() => updateSettings({ reminderTime: t })}
-                >
-                  {timeLabel(t)}
-                </button>
-              ))}
+          <Section label="reminders">
+            <div className="row">
+              <span className="row__label">daily poem reminder</span>
+              <Toggle on={settings.reminder} onChange={(reminder) => updateSettings({ reminder })} />
             </div>
-          )}
-          <div className="row">
-            <span className="row__label">haptics</span>
-            <Toggle
-              on={settings.haptics}
-              onChange={(haptics) => {
-                updateSettings({ haptics })
-                if (haptics) navigator.vibrate?.(10)
+            {settings.reminder && (
+              <div className="row row--chips">
+                {TIMES.map((t) => (
+                  <button
+                    key={t}
+                    className={`chip ${settings.reminderTime === t ? 'is-on' : ''}`}
+                    onClick={() => updateSettings({ reminderTime: t })}
+                  >
+                    {timeLabel(t)}
+                  </button>
+                ))}
+              </div>
+            )}
+            <div className="row">
+              <span className="row__label">haptics</span>
+              <Toggle
+                on={settings.haptics}
+                onChange={(haptics) => {
+                  updateSettings({ haptics })
+                  if (haptics) navigator.vibrate?.(10)
+                }}
+              />
+            </div>
+          </Section>
+
+          <Section label="start over">
+            <button
+              className="row"
+              onClick={() => {
+                onClearToday()
+                toast.show("Today's fridge is empty again")
               }}
-            />
-          </div>
-        </Section>
+            >
+              <span className="row__label">clear today's fridge</span>
+            </button>
+            <button className="row" onClick={onReplayOnboarding}>
+              <span className="row__label">replay onboarding</span>
+            </button>
+            <button
+              className="row row--danger"
+              onClick={() => {
+                resetDemo()
+                toast.show('Demo data reset')
+              }}
+            >
+              <span className="row__label">reset demo data</span>
+            </button>
+          </Section>
 
-        <Section label="start over">
-          <button
-            className="row"
-            onClick={() => {
-              onClearToday()
-              toast.show("Today's fridge is empty again")
-            }}
-          >
-            <span className="row__label">clear today's fridge</span>
-          </button>
-          <button className="row" onClick={onReplayOnboarding}>
-            <span className="row__label">replay onboarding</span>
-          </button>
-          <button
-            className="row row--danger"
-            onClick={() => {
-              resetDemo()
-              toast.show('Demo data reset')
-            }}
-          >
-            <span className="row__label">reset demo data</span>
-          </button>
-        </Section>
-
-        <p className="settings__note">Fridge App never stores your information</p>
-      </motion.div>
+          <p className="settings__note">Fridge App never stores your information</p>
+        </motion.div>
+      </div>
       {toast.node}
     </div>
   )
