@@ -24,7 +24,8 @@ type Route =
   | { name: 'signin'; source: Source; from?: 'settings' }
   | { name: 'poem' }
   | { name: 'favourites' }
-  | { name: 'editFavourites'; draft: (string | null)[] }
+  // swapIn: a starred poem waiting for a slot on a full fridge; back: where to return after Save / Cancel
+  | { name: 'editFavourites'; draft: (string | null)[]; swapIn?: string; back?: Route }
   | { name: 'viewPoem'; date: string }
   | { name: 'customize'; from: 'favourites' | 'settings' }
   | { name: 'share'; subject: string; back?: Route }
@@ -136,7 +137,12 @@ function Screens() {
                 onConnected={(s) => markConnected(s, route.from)}
               />
             )}
-            {route.name === 'poem' && <PoemScreen onMenu={menu} />}
+            {route.name === 'poem' && <PoemScreen
+                onMenu={menu}
+                onFavouritesFull={() =>
+                  go({ name: 'editFavourites', draft: app.favourites, swapIn: todayKey(), back: { name: 'poem' } })
+                }
+              />}
 
             {route.name === 'favourites' && (
               <FavouritesScreen
@@ -150,12 +156,14 @@ function Screens() {
             {route.name === 'editFavourites' && (
               <EditFavouritesScreen
                 draft={route.draft}
-                onChange={(draft) => setRoute({ name: 'editFavourites', draft })}
+                swapIn={route.swapIn}
+                onChange={(draft) => setRoute({ ...route, draft })}
                 onAdd={() => go({ name: 'calendar', pick: route.draft })}
-                onCancel={() => go({ name: 'favourites' }, -1)}
+                // came from starring today's poem: go back there
+                onCancel={() => go(route.back ?? { name: 'favourites' }, -1)}
                 onSave={() => {
                   app.setFavourites(route.draft)
-                  go({ name: 'favourites' }, -1)
+                  go(route.back ?? { name: 'favourites' }, -1)
                 }}
               />
             )}
@@ -197,6 +205,9 @@ function Screens() {
             {route.name === 'day' && (
               <DayScreen
                 date={route.date}
+                onFavouritesFull={(date) =>
+                  go({ name: 'editFavourites', draft: app.favourites, swapIn: date, back: { name: 'day', date } })
+                }
                 onDate={(date) => setRoute({ name: 'day', date })}
                 onBack={() => go({ name: 'calendar' }, -1)}
                 onShare={(date) => go({ name: 'share', subject: date, back: { name: 'day', date } })}

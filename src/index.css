@@ -329,17 +329,6 @@ button {
   background: var(--surface-2);
 }
 
-.back-btn {
-  position: absolute;
-  left: 30px;
-  top: 31px;
-  width: 24px;
-  height: 24px;
-  display: grid;
-  place-items: center;
-  z-index: 5;
-}
-
 .home-tab {
   position: absolute;
   right: -1px;
@@ -751,8 +740,14 @@ button {
   gap: 8px;
   z-index: 20;
 }
-.tool-column--day .icon-btn:first-child {
+/* back (or undo) sits a little apart from the icons below it */
+.tool-column--day .icon-btn:first-child,
+.tool-column--poem .icon-btn:first-child {
   margin-bottom: 21px;
+}
+/* Figma: the poem page's undo sits 30px in, not 36 */
+.tool-column--poem {
+  left: 30px;
 }
 
 .top-left {
@@ -777,6 +772,11 @@ button {
   color: #000;
 }
 
+/* the bottom of today's poem holds the drawer bar and the pile, so toasts sit under the top icons */
+.poem-screen .toast {
+  top: 76px;
+  bottom: auto;
+}
 .day-screen .toast {
   bottom: 182px;
 }
@@ -1287,6 +1287,22 @@ button {
   position: absolute;
   inset: 1px;
   fill: #f6c945;
+}
+
+/* Edit Favourites, opened from starring today's poem on a full fridge.
+   Figma text style "body": DM Sans Regular 16 */
+.swap-hint {
+  position: absolute;
+  top: 112px; /* centred in the gap between the top icons and the fridge */
+  left: 36px;
+  right: 36px;
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
+  color: var(--black-3);
 }
 
 .day-strip {
