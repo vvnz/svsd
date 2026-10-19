@@ -79,11 +79,10 @@ function Screens() {
 
   // the pull-out menu: favourites, calendar, settings, share, or back to today's fridge
   const menu = (id: MenuId) => {
-    if (id === 'home') go({ name: 'poem' }, -1)
+    if (id === 'poem') go({ name: 'poem' }, -1)
     else if (id === 'favourite') go({ name: 'favourites' })
     else if (id === 'calendar') go({ name: 'calendar' })
-    else if (id === 'settings') go({ name: 'settings' })
-    else go({ name: 'share', subject: 'favourites' })
+    else go({ name: 'settings' })
   }
 
   function markConnected(source: Source, from?: 'settings') {

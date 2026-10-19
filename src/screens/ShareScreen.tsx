@@ -53,12 +53,13 @@ export function ShareScreen({ subject, onBack, onMenu }: Props) {
 
   return (
     <div className="screen" ref={ref}>
+      {/* Figma: the share screen uses the fridge variant of the menu */}
       {onBack ? (
         <button className="icon-btn top-left" aria-label="Back" onClick={onBack}>
           <Icon name="chevronLeft" size={24} />
         </button>
       ) : (
-        <SideMenu screenWidth={size.width} current="share" onSelect={onMenu} />
+        <SideMenu screenWidth={size.width} current="favourite" onSelect={onMenu} />
       )}
 
       <motion.div

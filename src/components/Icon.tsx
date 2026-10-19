@@ -25,6 +25,7 @@ import minus from '../assets/icons/minus.svg?raw'
 import arrowRight from '../assets/icons/arrow-right.svg?raw'
 import chevronLeft from '../assets/icons/chevron-left.svg?raw'
 import download from '../assets/icons/download.svg?raw'
+import poem from '../assets/icons/poem.svg?raw'
 
 const ICONS = {
   fridge,
@@ -52,6 +53,7 @@ const ICONS = {
   arrowRight,
   chevronLeft,
   download,
+  poem,
 }
 
 export type IconName = keyof typeof ICONS
