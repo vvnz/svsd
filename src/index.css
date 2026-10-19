@@ -1416,6 +1416,10 @@ button {
   font-size: 12px;
   color: var(--fill-4);
 }
+/* keep the divider when a hint line sits between two rows */
+.row__hint + .row {
+  border-top: 1px solid var(--fill-1);
+}
 .row--chips {
   flex-wrap: wrap;
   gap: 6px;
@@ -1435,6 +1439,10 @@ button {
   background: var(--black-3);
   border-color: var(--black-3);
   color: #fff;
+}
+.chip:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 .row--danger {
   color: #b42318;

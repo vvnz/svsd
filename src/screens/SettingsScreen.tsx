@@ -2,7 +2,9 @@ import { motion } from 'motion/react'
 
 import { STYLE_NAMES } from '../components/Fridge'
 import { Icon } from '../components/Icon'
+import { PrivacyOptions } from '../components/PrivacyOptions'
 import { SideMenu, type MenuId } from '../components/SideMenu'
+import { Toggle } from '../components/Toggle'
 import { useToast } from '../components/Toast'
 import { useApp } from '../state/appState'
 import { useScreenSize } from '../state/useScreenSize'
@@ -78,6 +80,10 @@ export function SettingsScreen({
           </button>
         </Section>
 
+        <Section label="privacy">
+          <PrivacyOptions />
+        </Section>
+
         <Section label="reminders">
           <div className="row">
             <span className="row__label">daily poem reminder</span>
@@ -148,13 +154,5 @@ function Section({ label, children }: { label: string; children: React.ReactNode
       <h2 className="settings__label">{label}</h2>
       <div className="card">{children}</div>
     </motion.section>
-  )
-}
-
-function Toggle({ on, onChange }: { on: boolean; onChange: (on: boolean) => void }) {
-  return (
-    <button className={`toggle ${on ? 'is-on' : ''}`} role="switch" aria-checked={on} onClick={() => onChange(!on)}>
-      <motion.span className="toggle__knob" layout transition={{ type: 'spring', stiffness: 600, damping: 34 }} />
-    </button>
   )
 }

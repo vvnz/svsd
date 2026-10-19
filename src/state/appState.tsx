@@ -12,10 +12,18 @@ export type Settings = {
   haptics: boolean
 }
 
+// What the app may look at to suggest words. All simulated: nothing is really read.
+export type Privacy = {
+  photos: 'all' | 'picked' | 'off' // every photo, only the ones picked each day, or none
+  location: 'places' | 'photos' | 'off' // places you visit (+ journalling prompts), only from photos, or none
+  music: boolean // music apps, for words from what you listened to
+}
+
 type AppState = {
   favourites: (string | null)[] // 6 slots, each a poem date or empty
   fridgeStyle: FridgeStyle
   settings: Settings
+  privacy: Privacy
 }
 
 const KEY = 'svsd:app'
@@ -23,6 +31,8 @@ const DEFAULTS: AppState = {
   favourites: DEFAULT_FAVOURITES,
   fridgeStyle: 'steel',
   settings: { name: 'jessica', reminder: true, reminderTime: '21:00', haptics: true },
+  // start private: only the photos you pick, nothing else
+  privacy: { photos: 'picked', location: 'off', music: false },
 }
 
 function load(): AppState {
@@ -30,7 +40,12 @@ function load(): AppState {
     const raw = localStorage.getItem(KEY)
     if (raw) {
       const saved = JSON.parse(raw) as Partial<AppState>
-      return { ...DEFAULTS, ...saved, settings: { ...DEFAULTS.settings, ...saved.settings } }
+      return {
+        ...DEFAULTS,
+        ...saved,
+        settings: { ...DEFAULTS.settings, ...saved.settings },
+        privacy: { ...DEFAULTS.privacy, ...saved.privacy },
+      }
     }
   } catch {
     // ignore
@@ -61,6 +76,7 @@ type Ctx = AppState & {
   setFavourites: (f: (string | null)[]) => void
   setFridgeStyle: (s: FridgeStyle) => void
   updateSettings: (s: Partial<Settings>) => void
+  updatePrivacy: (p: Partial<Privacy>) => void
   toggleFavourite: (date: string) => void
   refreshToday: () => void
   resetDemo: () => void
@@ -103,6 +119,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setFavourites: (favourites) => setState((s) => ({ ...s, favourites })),
     setFridgeStyle: (fridgeStyle) => setState((s) => ({ ...s, fridgeStyle })),
     updateSettings: (patch) => setState((s) => ({ ...s, settings: { ...s.settings, ...patch } })),
+    updatePrivacy: (patch) =>
+      setState((s) => {
+        const privacy = { ...s.privacy, ...patch }
+        // location from photos needs photos
+        if (privacy.photos === 'off' && privacy.location === 'photos') privacy.location = 'off'
+        return { ...s, privacy }
+      }),
     toggleFavourite,
     refreshToday: () => setToday(todaysPoem()),
     resetDemo: () => {
