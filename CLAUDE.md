@@ -36,7 +36,7 @@ Hi-fis are in the section **"hello fi"** (node `20:1330`). Key frames:
 | Fridge - Customize fridge | 43:489 |
 | Share Screen | 43:630 |
 | Calendar (month / day) | 46:593 / 54:3592 |
-| Splash, Connect | 9:1075, 46:889 |
+| Splash | 9:1075 |
 
 When building a screen, pull it with the Figma MCP (`get_design_context` on its node) and match it.
 Reuse the tokens in `src/index.css` instead of hardcoding new colors.
@@ -51,10 +51,11 @@ shadow `1px 2px 4.8px rgba(0,0,0,.25), 1px 1px 0 rgba(47,47,47,.6)`.
 
 ## Code map
 
-- `src/App.tsx` the screen flow and routes: splash → connect → sign in → today's fridge, plus favourites,
+- `src/App.tsx` the screen flow and routes: splash → privacy → today's fridge, plus favourites,
   edit favourites, view poem, customize, share, calendar (+ pick mode), day, settings (stack-style slide transitions)
-- `src/screens/SplashScreen.tsx`, `ConnectScreen.tsx`, `SignInScreen.tsx` onboarding. Connecting an app is
-  **simulated** (no real sign-in), connected apps are remembered in localStorage
+- `src/screens/SplashScreen.tsx`, `PrivacyScreen.tsx` onboarding. The privacy screen (not in Figma) replaced the
+  old "connect app" + sign-in screens: it asks what the fridge may use (photos / location / music apps), the same
+  `PrivacyOptions` as Settings
 - `src/screens/PoemScreen.tsx` today's fridge: placing, dragging, removing magnets
 - `src/components/Icon.tsx` + `src/assets/icons/` the hand-drawn icons, exported from Figma as SVG
   (they draw in `currentColor`)
