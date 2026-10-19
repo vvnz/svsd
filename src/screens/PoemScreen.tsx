@@ -186,6 +186,12 @@ export function PoemScreen({ onMenu }: { onMenu: (id: MenuId) => void }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [held, snap, size])
 
+  // the drawer pulls down so the whole fridge is in view while deleting
+  function openDeleteMode() {
+    setSnap('collapsed')
+    setDeleteMode(true)
+  }
+
   function deleteMagnet(id: string) {
     dispatch({ type: 'remove', id })
     if (placed.length <= 1) setDeleteMode(false)
@@ -288,7 +294,7 @@ export function PoemScreen({ onMenu }: { onMenu: (id: MenuId) => void }) {
               spawnDelay={spawnDelay.current.get(m.id)}
               bounds={size}
               deleteMode={deleteMode}
-              onLongPress={() => setDeleteMode(true)}
+              onLongPress={openDeleteMode}
               onDelete={deleteMagnet}
               onDragStateChange={(isDragging, pageY) => {
                 setDragging(isDragging)
