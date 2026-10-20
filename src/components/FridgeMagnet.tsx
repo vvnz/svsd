@@ -1,7 +1,7 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { animate, motion, useMotionValue } from 'motion/react'
 
-import { Magnet } from './Magnet'
+import { MagnetFace } from './Magnet'
 import type { PlacedMagnet } from '../state/useFridge'
 
 type Props = {
@@ -15,7 +15,8 @@ type Props = {
   onLongPress?: () => void
   onDelete?: (id: string) => void
   onDragStateChange: (dragging: boolean, clientY?: number) => void
-  onDrop: (id: string, x: number, y: number, rotate: number, clientY: number) => void
+  /** where it was let go, its tilt, the pointer's y, and its size (to keep it off other magnets) */
+  onDrop: (id: string, x: number, y: number, rotate: number, clientY: number, w: number, h: number) => void
 }
 
 // A loose magnet tilt, like one stuck on in a hurry.
@@ -45,6 +46,9 @@ export function FridgeMagnet({
   const y = useMotionValue(spawnFrom?.y ?? magnet.y)
   const rotate = useMotionValue(spawnFrom ? 0 : magnet.rotate)
   const ref = useRef<HTMLDivElement>(null)
+  // lifted above the drawer while dragged. A class rather than whileDrag's zIndex: motion leaves an inline
+  // z-index behind after the drag, which would beat the Delete Mode and photo layers in the CSS
+  const [lifted, setLifted] = useState(false)
   // where this magnet last put itself, so a drop doesn't re-trigger the glide below
   const settled = useRef({ x: magnet.x, y: magnet.y, rotate: magnet.rotate })
   const press = useRef<{ timer: number; x: number; y: number } | null>(null)
@@ -79,12 +83,17 @@ export function FridgeMagnet({
   return (
     <motion.div
       ref={ref}
-      className="fridge-magnet"
+      className={`fridge-magnet ${magnet.photo ? 'fridge-magnet--photo' : ''} ${deleteMode ? 'fridge-magnet--delete' : ''} ${lifted ? 'fridge-magnet--dragging' : ''}`}
+      data-id={magnet.id}
       style={{ x, y, rotate }}
       drag={!deleteMode}
       dragMomentum={false}
       dragElastic={0}
-      whileDrag={{ scale: 1.08, zIndex: 50, cursor: 'grabbing' }}
+      whileDrag={{ scale: 1.08, cursor: 'grabbing' }}
+      // a magnet that comes back mid-exit (undo, then release again) keeps its id, so always
+      // animate back to fully shown rather than staying faded out
+      initial={false}
+      animate={{ scale: 1, opacity: 1 }}
       exit={{ scale: 0.4, opacity: 0, transition: { duration: 0.18 } }}
       // hold still for a moment to open Delete Mode; moving turns it into a drag instead
       onPointerDown={(e) => {
@@ -115,12 +124,14 @@ export function FridgeMagnet({
         }
       }}
       onDragStart={() => {
+        setLifted(true)
         cancelPress()
         void animate(rotate, 0, { duration: 0.12 })
         onDragStateChange(true)
       }}
       onDrag={(_, info) => onDragStateChange(true, info.point.y)}
       onDragEnd={(_, info) => {
+        setLifted(false)
         onDragStateChange(false)
         const el = ref.current
         const w = el?.offsetWidth ?? 60
@@ -133,7 +144,7 @@ export function FridgeMagnet({
         const tilt = randomTilt()
         void animate(rotate, tilt, SETTLE)
         settled.current = { x: nx, y: ny, rotate: tilt }
-        onDrop(magnet.id, nx, ny, tilt, info.point.y)
+        onDrop(magnet.id, nx, ny, tilt, info.point.y, w, h)
       }}
     >
       {/* a gentle wiggle in Delete Mode, each magnet a little out of step */}
@@ -141,7 +152,7 @@ export function FridgeMagnet({
         className={deleteMode ? 'wiggle' : undefined}
         style={{ animationDelay: `${-wiggleDelay(magnet.id)}s` }}
       >
-        <Magnet text={magnet.text} size="fridge" />
+        <MagnetFace text={magnet.text} sticker={magnet.sticker} photo={magnet.photo} />
       </div>
     </motion.div>
   )

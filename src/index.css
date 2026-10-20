@@ -1,5 +1,7 @@
 /* Design tokens from the Figma file (SVSD - Fridge App, "hello fi") */
 :root {
+  /* the side margin every screen uses (icons, drawer, grids, share targets, settings) */
+  --margin: 24px;
   --surface-1: #ffffff;
   --surface-2: #f5f7f8;
   --fill-1: #f4f4f5;
@@ -59,10 +61,26 @@ button {
   background: var(--surface-2);
 }
 
+/* on a phone the app fills the screen */
+@media (max-width: 599px) {
+  .device-frame {
+    width: 100% !important;
+    height: 100% !important;
+  }
+}
+
+/* on a laptop: always exactly an iPhone (402 × 874), scaled as a whole to fit the window (see deviceScale.ts) */
 @media (min-width: 600px) {
+  .device-frame {
+    position: relative;
+  }
   .device {
+    position: absolute;
+    left: 0;
+    top: 0;
     width: 402px;
-    height: min(874px, calc(100% - 48px));
+    height: 874px;
+    transform-origin: 0 0;
     border-radius: 32px;
     box-shadow:
       0 0 0 10px #141414,
@@ -177,7 +195,7 @@ button {
   display: none;
 }
 .privacy__body {
-  padding: 48px 36px 0;
+  padding: 48px var(--margin) 0;
 }
 
 /* ---------- Poem screen ---------- */
@@ -203,6 +221,19 @@ button {
   position: absolute;
   inset: 0;
   background: var(--surface-2);
+}
+/* on the steel finish the grey secondary text is too faint: use black 4 */
+.on-dark .empty-hint,
+.on-dark .poem-date {
+  color: var(--black-4);
+}
+.surface--plain {
+  background: var(--surface-2);
+}
+/* Figma's surface-2 layer, multiplied onto the coloured backgrounds under the enamel */
+.surface--tint {
+  background: var(--surface-2);
+  mix-blend-mode: multiply;
 }
 
 .home-tab {
@@ -278,6 +309,8 @@ button {
   font-size: 15px;
   line-height: 1.2;
   color: var(--fill-4);
+  /* multiplied onto the fridge's finish, so it takes on its colour and texture like print on the enamel */
+  mix-blend-mode: multiply;
   text-align: center;
   pointer-events: none;
 }
@@ -367,6 +400,8 @@ button {
 
 .fridge-magnet {
   position: absolute;
+  /* under the drawer (20); the one being dragged goes to 50 (--dragging) so it can be dropped on the drawer */
+  z-index: 10;
   left: 0;
   top: 0;
   pointer-events: auto;
@@ -412,7 +447,24 @@ button {
   font-size: 19px;
 }
 
-.fridge-magnet:active .magnet {
+/* Delete Mode: above the dim layer (35) */
+.fridge-magnet--delete {
+  z-index: 40;
+}
+
+/* photos always sit under the other magnets (and are left out of the no-overlap rule) */
+.fridge-magnet--photo {
+  z-index: 9;
+}
+.fridge-magnet--photo.fridge-magnet--delete {
+  z-index: 39;
+}
+.fridge-magnet.fridge-magnet--dragging {
+  z-index: 50;
+}
+
+.fridge-magnet:active .magnet,
+.fridge-magnet:active .photo-magnet {
   box-shadow:
     3px 8px 14px rgba(0, 0, 0, 0.22),
     1px 1px 0 rgba(47, 47, 47, 0.6);
@@ -429,7 +481,7 @@ button {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 13px 36px 0;
+  padding: 13px var(--margin) 0;
   background: var(--black-3);
   border-radius: 4px 4px 0 0;
   box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.25);
@@ -448,8 +500,8 @@ button {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  margin: -13px -36px 0;
-  padding: 13px 36px 4px;
+  margin: -13px calc(-1 * var(--margin)) 0;
+  padding: 13px var(--margin) 4px;
   cursor: grab;
   touch-action: none;
 }
@@ -504,8 +556,8 @@ button {
 .drawer__body {
   overflow-y: auto;
   overscroll-behavior: contain;
-  margin: 0 -36px;
-  padding: 8px 36px 120px;
+  margin: 0 calc(-1 * var(--margin));
+  padding: 8px var(--margin) 120px;
   touch-action: pan-y;
   scrollbar-width: none;
 }
@@ -514,15 +566,18 @@ button {
 }
 
 /* Figma rows: first magnet flush left, second centered, third flush right */
-/* Figma: rows of three, flush with the 36px margins, equal gaps between (space-between) */
+/* Figma: words flush with the side margins, equal gaps between them (space-between). Lines wrap
+   like text, so a line holds as many words as fit (at least 16px apart); the last line packs left */
 .bank {
   display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-.bank__row {
-  display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
+  column-gap: 16px;
+  row-gap: 15px;
+}
+.bank::after {
+  content: '';
+  flex: 1 0 auto;
 }
 .bank__item {
   /* hold-to-drag: no text selection or iOS callout on a long press */
@@ -594,48 +649,55 @@ button {
 
 /* ---------- Shared screen chrome ---------- */
 
+/* every standalone icon button (back, undo, share, star, edit...) is 35px, the same as the
+   side menu's icons; the Add Magnets drawer sizes its own */
 .icon-btn {
   display: grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
+  width: 35px;
+  height: 35px;
   color: #000;
+}
+/* one line weight for these icons, whatever their drawing's scale (Icon refits them):
+   2.5px, what the side menu's icons already drew at */
+.icon-btn .icon path[stroke],
+.side-menu .icon path[stroke] {
+  vector-effect: non-scaling-stroke;
+  stroke-width: 2.5px;
 }
 .icon-btn:disabled {
   opacity: 0.25;
   cursor: default;
 }
 
-/* the column of icons on the top left (share / edit / paint, Figma left 36 top 31, 8 apart) */
+/* the column of icons on the top left (share / edit / paint), on the side margin, Figma top 31 */
 .tool-column {
   position: absolute;
-  left: 36px;
+  left: var(--margin);
   top: 31px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  /* 35px icon buttons, 16px apart */
+  gap: 16px;
   z-index: 20;
 }
-/* back (or undo) sits a little apart from the icons below it */
+/* back (or undo) sits further from the icons below it: 24px */
 .tool-column--day .icon-btn:first-child,
-.tool-column--poem .icon-btn:first-child {
-  margin-bottom: 21px;
-}
-/* Figma: the poem page's undo sits 30px in, not 36 */
-.tool-column--poem {
-  left: 30px;
+.tool-column--poem .icon-btn:first-child,
+.tool-column--edit .icon-btn:first-child {
+  margin-bottom: 8px;
 }
 
 .top-left {
   position: absolute;
-  left: 36px;
+  left: var(--margin);
   top: 31px;
   z-index: 20;
 }
 
 .top-right {
   position: absolute;
-  right: 36px;
+  right: var(--margin);
   top: 29px;
   z-index: 20;
 }
@@ -650,8 +712,8 @@ button {
 
 /* the bottom of today's poem holds the drawer bar and the pile, so toasts sit under the top icons */
 .poem-screen .toast {
-  top: 76px;
-  bottom: auto;
+  /* at the bottom of the fridge, just above the 80px drawer bar (over the pile, if there is one, for a moment) */
+  bottom: 102px;
 }
 .day-screen .toast {
   bottom: 182px;
@@ -661,15 +723,19 @@ button {
   left: 50%;
   bottom: 40px;
   z-index: 60;
-  padding: 10px 16px;
-  border-radius: 999px;
-  background: var(--black-3);
-  color: #fff;
-  font-family: var(--font-ui);
-  font-size: 14px;
-  white-space: nowrap;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
   pointer-events: none;
+}
+/* the message is a word magnet (fridge size): the tile and its shadow at 72%, the words at 90% so they stay crisp */
+.toast .magnet {
+  max-width: calc(100vw - 48px);
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(208, 208, 212, 0.72);
+  box-shadow:
+    1px 2px 4.8px rgba(0, 0, 0, 0.18),
+    1px 1px 0 rgba(47, 47, 47, 0.43);
+}
+.toast .magnet__text {
+  color: rgba(47, 47, 47, 0.9);
 }
 
 .poem-date {
@@ -706,9 +772,6 @@ button {
   height: auto;
   filter: drop-shadow(1px 3px 5px rgba(0, 0, 0, 0.25));
 }
-.poem-canvas__sticker {
-  filter: drop-shadow(1px 3px 4px rgba(0, 0, 0, 0.2));
-}
 
 .poem-stage {
   position: absolute;
@@ -717,25 +780,9 @@ button {
   touch-action: pan-y;
 }
 
-/* ---------- Brushed steel backdrop ---------- */
-
-.steel-backdrop {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(98deg, #ebebeb 20%, #ffffff 41%, #efefef 68%, #b8b8b8 121%);
-}
-.steel-backdrop__texture {
-  position: absolute;
-  inset: 0;
-  opacity: 0.3;
-}
-.steel-backdrop__vignette {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(43, 43, 43, 0.15));
-}
-
-/* ---------- Fridge ---------- */
+/* ---------- Fridge ----------
+   The five Figma fridges (FridgeArt), drawn in the fridge frame's 250 x 395 coordinates and
+   scaled up to the fridge's size. */
 
 .fridge {
   position: relative;
@@ -745,100 +792,27 @@ button {
   position: absolute;
   left: 0;
   top: 0;
-  width: 268px;
-  height: 428px;
   transform-origin: 0 0;
-}
-.fridge__door {
-  position: absolute;
-  left: 0;
-  width: 268px;
-  overflow: hidden;
-  border-radius: 4.4px 2.2px 2.2px 4.4px;
-  box-shadow:
-    inset 0 0 0 0.6px rgba(0, 0, 0, 0.08),
-    0 1px 2px rgba(0, 0, 0, 0.12);
-}
-.fridge__steel {
-  position: absolute;
-  inset: 0;
-  opacity: 0.3;
-}
-.fridge__strip {
-  position: absolute;
-  left: 6px;
-  right: 6px;
-  top: 206px;
-  height: 16px;
-  background: linear-gradient(#dcdcdc, #b0b0b0);
-}
-.fridge__handle {
-  position: absolute;
-  left: 13px;
-  width: 11px;
-  border-radius: 6px 3px 3px 6px;
-  background: linear-gradient(90deg, #ffffff 10%, #f2f2f2 50%, #cfcfcf 100%);
-  box-shadow:
-    1.5px 2px 3px rgba(0, 0, 0, 0.18),
-    inset -1px 0 0 rgba(0, 0, 0, 0.06);
-}
-.fridge__foot {
-  position: absolute;
-  top: 418px;
-  width: 15px;
-  height: 10px;
-  background: linear-gradient(#595959, #646464);
 }
 .fridge__content {
   position: absolute;
   inset: 0;
 }
-
-.fridge--steel .fridge__door--top {
-  background: linear-gradient(98deg, #ebebeb 20%, rgba(255, 255, 255, 0.95) 41%, #efefef 68%, #b8b8b8 121%);
+.fridge-art {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
-.fridge--steel .fridge__door--bottom {
-  background:
-    radial-gradient(ellipse at 30% 30%, #ffffff 0%, rgba(226, 226, 226, 0.35) 60%, transparent 100%),
-    linear-gradient(98deg, #e4e4e4 10%, #f4f4f4 40%, #e2e2e2 70%, #b4b4b4 120%);
+.fridge-art__img {
+  display: block;
+  max-width: none;
 }
-
-.fridge--graphite .fridge__door {
-  background: linear-gradient(98deg, #8a8a8a 10%, #a5a5a5 40%, #8c8c8c 70%, #606060 120%);
-}
-.fridge--graphite .fridge__strip {
-  background: linear-gradient(#7b7b7b, #4f4f4f);
-}
-.fridge--graphite .fridge__handle {
-  background: linear-gradient(90deg, #d9d9d9 10%, #bdbdbd 50%, #8f8f8f 100%);
-}
-
-.fridge--butter .fridge__door--top {
-  border-radius: 20px 20px 3px 3px;
-  background: linear-gradient(100deg, #fff1b1 10%, #fff7d4 40%, #ffecb1 70%, #ffd18f 125%);
-}
-.fridge--butter .fridge__door--bottom {
-  border-radius: 3px 3px 8px 8px;
-  background: linear-gradient(100deg, #ffefb3 10%, #fff6d0 40%, #ffeab0 70%, #ffd18f 125%);
-}
-.fridge--butter .fridge__strip {
-  background: linear-gradient(#d8c68f, #c87d3b);
-}
-.fridge--butter .fridge__handle {
-  left: 22px;
-  width: 52px;
-  height: 9px !important;
-  border-radius: 5px;
-  background: linear-gradient(#f0dc94, #e2c877 40%, #b39e5b 70%, #a7802a);
-}
-.fridge--butter .fridge__handle:not(.fridge__handle--low) {
-  top: 180px !important;
-}
-.fridge--butter .fridge__handle--low {
-  top: 236px !important;
-}
-.fridge--butter .fridge__foot {
-  background: linear-gradient(#c9a25a, #a58930);
+/* a gradient or shader filling its door */
+.fridge-art__fill {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 /* ---------- Favourites ---------- */
@@ -918,84 +892,137 @@ button {
   gap: 12px;
 }
 
+/* the edges of a poem's background darkened a little (calendar day view, share close-up); sits under the magnets */
+.vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* clear in the middle, then a gentle eased fade to 11% black at the corners (strong); the share post uses a
+     lighter one (about 3.5%) */
+  background: radial-gradient(
+    ellipse 72% 72% at 50% 50%,
+    transparent 62%,
+    rgba(0, 0, 0, 0.018) 73%,
+    rgba(0, 0, 0, 0.046) 84%,
+    rgba(0, 0, 0, 0.083) 95%,
+    rgba(0, 0, 0, 0.11) 104%
+  );
+}
+.vignette--light {
+  opacity: 0.32;
+}
+
 /* ---------- Share ---------- */
 
+/* Figma "Share - Entire Fridge" (52:1358): 225 × 399, 8px corners */
 .share-card {
   position: absolute;
   overflow: hidden;
   border: 1px solid var(--fill-2);
-  border-radius: 6px;
+  border-radius: 8px;
   background: var(--surface-1);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
 }
-.share-card--steel {
-  background: var(--surface-1);
+/* holds the post at its Figma size and scales it up on screen */
+.share-card-holder {
+  position: absolute;
+  width: 225px;
+  height: 399px;
+  transform-origin: 0 0;
 }
-.share-card--enamel {
-  background: var(--fill-1);
+/* the hidden copy Download draws from, off screen */
+.share-card--export {
+  position: fixed;
+  left: -10000px;
+  top: 0;
+  pointer-events: none;
 }
-.share-card--paper {
-  background: #fbfaf6;
+.share-card--angled {
+  border-color: var(--black-3);
+  background: var(--black-3);
 }
+/* Patrick Hand 8, black (white on the dark card) */
 .share-card__header {
   position: absolute;
-  left: 22px;
-  right: 22px;
-  top: 52px;
+  z-index: 2;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   font-family: 'Patrick Hand', var(--font-ui);
   font-size: 8px;
+  line-height: 11px;
   color: #000;
+}
+.share-card__header--row {
+  left: 30px;
+  right: 30px;
+  top: 55px;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.share-card__header--light {
+  color: #fff;
+  gap: 6px;
 }
 .share-card__fridge {
   position: absolute;
-  top: 82px;
 }
-.share-card--paper .share-card__fridge {
-  transform: rotate(-3deg);
+/* Figma rotates about the top left corner; 4.4° counter-clockwise */
+.share-card__fridge--angled {
+  transform-origin: 0 0;
+  transform: rotate(-4.4deg);
 }
-.share-card__poem {
+.share-card__page {
   position: absolute;
-  inset: 0;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+}
+.share-card__surface {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
 }
 
+/* Figma "post options" (52:1828): three 38px tiles, 18px apart */
 .share-templates {
   position: absolute;
   left: 0;
   right: 0;
   display: flex;
   justify-content: center;
-  gap: 19px;
+  gap: 18px;
 }
 .share-template {
-  width: 33px;
-  height: 37px;
-  border-radius: 3px;
+  position: relative;
+  width: 38px;
+  height: 38px;
+  overflow: hidden;
+  border-radius: 4px;
   border: 1px solid var(--fill-2);
-  transition: transform 0.2s, box-shadow 0.2s;
+  background: var(--surface-1);
+  transition: box-shadow 0.2s;
 }
 .share-template.is-on {
   box-shadow: 0 0 0 1.5px var(--black-4);
 }
-.share-template--steel {
-  background: linear-gradient(98deg, #ebebeb 20%, #fff 41%, #efefef 68%, #b8b8b8 121%);
+.share-template__fridge {
+  position: absolute;
+  pointer-events: none;
 }
-.share-template--enamel {
-  background: #e7e7e9;
-}
-.share-template--paper {
-  background: #fff;
-  transform: rotate(8deg);
+.share-template__fridge--angled {
+  transform-origin: 0 0;
+  transform: rotate(-12.8deg);
 }
 
+/* Figma "Frame 131" (52:4460): 100px tiles, 12px apart, from the side margin; scrolls sideways */
 .share-targets {
   position: absolute;
   left: 0;
   right: 0;
   display: flex;
-  gap: 18px;
-  padding: 0 40px;
+  gap: 12px;
+  padding: 0 var(--margin);
   overflow-x: auto;
   scrollbar-width: none;
   touch-action: pan-x;
@@ -1005,7 +1032,7 @@ button {
 }
 .share-target {
   flex: none;
-  width: 72px;
+  width: 100px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1013,13 +1040,14 @@ button {
   color: #000;
 }
 .share-target .icon {
-  height: 34px !important;
+  height: 30px !important;
   display: grid;
   place-items: center;
 }
 .share-target span:last-child {
   font-family: var(--font-ui);
   font-size: 13px;
+  line-height: 17px;
   color: #52525b;
 }
 
@@ -1039,12 +1067,14 @@ button {
 .month {
   margin-bottom: 44px;
 }
+/* the design system's "subtitle" text style: Benne 24 */
 .month__title {
   margin: 0 0 18px;
   text-align: center;
-  font-family: 'Patrick Hand', var(--font-ui);
+  font-family: var(--font-magnet);
   font-weight: 400;
   font-size: 24px;
+  line-height: normal;
   color: #000;
 }
 .month__grid {
@@ -1068,9 +1098,6 @@ button {
 .month__day.is-inert {
   cursor: default;
 }
-.month__day.is-pinned {
-  opacity: 0.35;
-}
 .calendar__fade {
   position: absolute;
   left: 0;
@@ -1079,19 +1106,6 @@ button {
   height: 116px;
   background: linear-gradient(rgba(245, 247, 248, 0), var(--surface-2) 80%);
   pointer-events: none;
-}
-.pick-hint {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 31px;
-  margin: 0;
-  text-align: center;
-  font-family: var(--font-ui);
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 24px;
-  z-index: 10;
 }
 
 .cal-tile {
@@ -1120,30 +1134,39 @@ button {
   width: calc(100% - 4px) !important;
   height: calc(100% - 4px) !important;
 }
-.cal-tile__depth {
-  fill: var(--surface-1);
-  stroke: #000;
-  stroke-width: 1.5;
+/* word magnet blocks: the same 2.5px line as the icons, whatever the tile's size */
+.cal-tile__face,
+.cal-tile__edge {
+  stroke: var(--black-3);
+  stroke-width: 2.5px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
 }
+/* the face is white and the depth (the body showing behind it) is black; the selected tile swaps them */
 .cal-tile__face {
   fill: var(--surface-1);
-  stroke: #000;
-  stroke-width: 1.5;
+}
+.cal-tile__body {
+  fill: var(--black-3);
+  stroke: none;
+}
+.cal-tile__edge {
+  fill: none;
 }
 .cal-tile__text {
   font-family: 'Patrick Hand', var(--font-ui);
-  font-size: 16px;
-  fill: #000;
-}
-.cal-tile.is-selected .cal-tile__face,
-.cal-tile.is-selected .cal-tile__depth {
+  font-size: 10.5px;
   fill: var(--black-3);
 }
-.cal-tile.is-selected .cal-tile__depth {
-  fill: #444;
+.cal-tile.is-selected .cal-tile__body {
+  fill: var(--surface-1);
+}
+.cal-tile.is-selected .cal-tile__face {
+  fill: var(--black-3);
 }
 .cal-tile.is-selected .cal-tile__text {
-  fill: #fff;
+  fill: var(--surface-1);
 }
 .cal-tile--photo img {
   height: auto;
@@ -1161,7 +1184,7 @@ button {
 }
 .star-btn__fill {
   position: absolute;
-  inset: 1px;
+  inset: 0;
   fill: #f6c945;
 }
 
@@ -1170,8 +1193,8 @@ button {
 .swap-hint {
   position: absolute;
   top: 112px; /* centred in the gap between the top icons and the fridge */
-  left: 36px;
-  right: 36px;
+  left: var(--margin);
+  right: var(--margin);
   margin: 0;
   text-align: center;
   font-family: var(--font-ui);
@@ -1188,7 +1211,19 @@ button {
   bottom: 0;
   height: 170px;
   z-index: 6;
-  background: linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.92) 45%);
+  isolation: isolate;
+}
+/* behind the tiles: blur whatever finish is underneath (white, yellow, blue, pink or steel) and fade
+   it in from the top, so the strip blends into every background instead of turning white */
+.day-strip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  -webkit-mask-image: linear-gradient(transparent, #000 45%);
+  mask-image: linear-gradient(transparent, #000 45%);
 }
 .day-strip__month {
   margin: 30px 0 0;
@@ -1215,7 +1250,7 @@ button {
 /* ---------- Settings ----------
    Built on the design system: Figma text styles, colour styles, and the 4px spacing
    variable (every margin, padding, gap and height is a multiple of 4).
-   Mobile: 36px side margins like the other screens, and nothing tappable under 40px tall. */
+   Mobile: the same side margins as the other screens, and nothing tappable under 40px tall. */
 
 .settings {
   touch-action: pan-y;
@@ -1237,7 +1272,7 @@ button {
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  padding: 72px 36px 0;
+  padding: 72px var(--margin) 0;
   text-align: center;
 }
 /* text style "body" in fill 4 */
@@ -1250,8 +1285,7 @@ button {
   color: var(--fill-4);
 }
 .settings__body {
-  /* side margin + room for the menu tab on the right edge is already in the 36px */
-  padding: 48px 36px 48px;
+  padding: 48px var(--margin) 48px;
 }
 .settings__section {
   margin-bottom: 24px;
@@ -1389,5 +1423,231 @@ button {
   font-family: var(--font-ui);
   font-size: 13px;
   line-height: normal;
+  color: var(--fill-4);
+}
+
+/* ---------- Sticker magnets ---------- */
+
+.sticker {
+  display: block;
+  /* made stickers aren't always square */
+  object-fit: contain;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+/* on the fridge they cast the word magnets' shadow (drop-shadow blur is half a box-shadow's): small at rest,
+   bigger while picked up */
+.sticker--fridge,
+.poem-canvas__sticker {
+  filter: drop-shadow(1px 2px 2.4px rgba(0, 0, 0, 0.25)) drop-shadow(1px 1px 0 rgba(47, 47, 47, 0.6));
+}
+.fridge-magnet:active .sticker--fridge {
+  filter: drop-shadow(3px 8px 7px rgba(0, 0, 0, 0.22)) drop-shadow(1px 1px 0 rgba(47, 47, 47, 0.6));
+}
+
+/* Figma "Poem - Add Stickers" (46:1683): 3 columns 128px apart, rows 113px apart, centred in the drawer */
+.sticker-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 77px);
+  justify-content: space-between;
+  row-gap: 36px;
+  padding: 0 1px;
+}
+.sticker-grid__item {
+  position: relative;
+  width: 77px;
+  height: 77px;
+  display: grid;
+  place-items: center;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+/* the "+" tile: make your own sticker */
+.sticker-grid__make {
+  color: var(--fill-4);
+}
+/* a sticker you made, with its delete badge */
+.sticker-grid__made {
+  position: relative;
+  width: 77px;
+  height: 77px;
+}
+/* on the dark drawer: a small white disc with the black "−" */
+.remove-badge.sticker-grid__delete {
+  left: -4px;
+  top: -4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--surface-1);
+  color: var(--black-3);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+/* a sticker being cut out of a photo: a soft pulsing disc where it will appear */
+.sticker-grid__making::before {
+  content: '';
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px dashed var(--fill-4);
+  animation: making 1s ease-in-out infinite alternate;
+}
+@keyframes making {
+  from {
+    opacity: 0.35;
+    transform: scale(0.9) rotate(0deg);
+  }
+  to {
+    opacity: 0.9;
+    transform: scale(1) rotate(25deg);
+  }
+}
+
+/* ---------- Photo magnets (Images tab) ---------- */
+
+/* Figma "Frame 158" (58:4784): 4px corners; the word magnets' shadow, small at rest, bigger while picked up */
+.photo-magnet {
+  display: block;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow:
+    1px 2px 4.8px rgba(0, 0, 0, 0.25),
+    1px 1px 0 rgba(47, 47, 47, 0.6);
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* Figma "coNnect" (46:2278): 4 columns of 79.5 × 113-proportioned photos, 4px apart, flush with the side margins */
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+.photo-grid__item {
+  display: block;
+  aspect-ratio: 79.5 / 113;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+.photo-grid__item img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  -webkit-user-drag: none;
+}
+
+.poem-canvas__photo-magnet {
+  position: absolute;
+}
+
+/* ---------- Add to Favourites (Figma 52:3086) ---------- */
+
+.add-fav {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+}
+.add-fav__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(27, 27, 27, 0.2);
+}
+/* 284 × 399, 8px corners, fill-2 border, shadow 0 1 4.8 at 25% */
+.add-fav__panel {
+  position: relative;
+  width: 284px;
+  height: 399px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--fill-2);
+  border-radius: 8px;
+  background: var(--surface-1);
+  box-shadow: 0 1px 4.8px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+.add-fav__close {
+  position: absolute;
+  top: 11.5px;
+  right: 12px;
+  width: 24px;
+  height: 24px;
+  color: #000;
+}
+.add-fav__search {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 64px 16px 0 19px;
+  color: #000;
+}
+.add-fav__search input {
+  border: 0;
+  padding: 0;
+  outline: none;
+  background: none;
+  font-family: var(--font-ui);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 21px;
+  color: var(--black-3);
+  -webkit-appearance: none;
+  appearance: none;
+}
+.add-fav__search input::placeholder {
+  color: var(--fill-3);
+}
+.add-fav__search input::-webkit-search-cancel-button {
+  display: none;
+}
+.add-fav__search svg {
+  display: block;
+  width: 100%;
+  height: 4px;
+  overflow: visible;
+}
+/* results 12px apart from (32, 114), title 16 / date 12, both DM Sans Medium black-3 */
+.add-fav__list {
+  flex: 1;
+  margin: 0;
+  /* titles cut off at 173px, like Figma */
+  padding: 19px 79px 24px 32px;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.add-fav__list::-webkit-scrollbar {
+  display: none;
+}
+.add-fav__item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+  font-family: var(--font-ui);
+  font-weight: 500;
+  color: var(--black-3);
+}
+.add-fav__title {
+  max-width: 100%;
+  font-size: 16px;
+  line-height: 21px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.add-fav__date {
+  font-size: 12px;
+  line-height: 16px;
+}
+.add-fav__empty {
+  font-family: var(--font-ui);
+  font-size: 13px;
   color: var(--fill-4);
 }

@@ -1,37 +1,58 @@
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import {
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+} from 'react'
 import { AnimatePresence, animate, motion, useDragControls, useMotionValue, useTransform, type PanInfo } from 'motion/react'
 
 import { Icon } from './Icon'
-import { Magnet } from './Magnet'
+import { Magnet, StickerMagnet } from './Magnet'
+import { PHOTOS, type PhotoId } from '../data/photos'
+import {
+  STICKERS,
+  addCustomSticker,
+  customStickers,
+  deleteCustomSticker,
+  subscribeCustomStickers,
+  type StickerId,
+} from '../data/stickers'
+import { makeSticker } from '../lib/cutout'
 import type { BankWord } from '../data/wordBank'
 
 export type DrawerSnap = 'collapsed' | 'half' | 'full'
 
 type Tab = 'words' | 'stickers' | 'images'
 
+/** something in the drawer: a word, a sticker or a photo (then `text` is its name) */
+export type Collectible = { id: string; text: string; sticker?: StickerId; photo?: PhotoId }
+
+const STICKER_ITEMS: Collectible[] = STICKERS.map((s) => ({ id: `sticker-${s.id}`, text: s.label, sticker: s.id }))
+const PHOTO_ITEMS: Collectible[] = PHOTOS.map((p) => ({ id: `photo-${p.id}`, text: `photo ${Number(p.id)}`, photo: p.id }))
+
 type Props = {
   screenHeight: number
   snap: DrawerSnap
   onSnapChange: (snap: DrawerSnap) => void
   words: BankWord[]
-  /** how many of each word (by id) are waiting in the pile */
+  /** how many of each word or sticker (by id) are waiting in the pile */
   pileCounts: Map<string, number>
   removeHint: boolean
-  onPick: (word: BankWord, rect: DOMRect) => void
-  /** a word was held long enough to drag it out onto the fridge; the screen takes over from here */
-  onHold: (word: BankWord, point: { x: number; y: number }) => void
+  /** tapped: words and stickers go into the pile, a photo goes straight onto the fridge */
+  onPick: (item: Collectible, rect: DOMRect) => void
+  /** held long enough to drag it out onto the fridge; the screen takes over from here */
+  onHold: (item: Collectible, point: { x: number; y: number }) => void
+  /** a short message for the screen's toast (making a sticker didn't work, and so on) */
+  onNotice: (message: string) => void
+  /** privacy settings turned photos off: the Images tab says so instead of showing them */
+  photosOff: boolean
 }
 
 // Long enough that a normal swipe through the words scrolls instead of grabbing one.
 const HOLD_MS = 350
 const HOLD_SLOP = 8 // px the finger may wander during the hold before it counts as a scroll
-
-// Figma lays each row of three out with equal gaps between them (space-between).
-function rowsOf<T>(items: T[], n: number): T[][] {
-  const rows: T[][] = []
-  for (let i = 0; i < items.length; i += n) rows.push(items.slice(i, i + n))
-  return rows
-}
 
 // Where the top edge of the drawer sits for each snap point.
 // Figma: collapsed bar is 80px tall, half sheet 455px of 874, full sheet starts 32px from the top.
@@ -52,8 +73,28 @@ export function MagnetDrawer({
   removeHint,
   onPick,
   onHold,
+  onNotice,
+  photosOff,
 }: Props) {
   const [tab, setTab] = useState<Tab>('words')
+  // stickers you made with the "+" tile, newest first, and whether one is being cut out right now
+  const made = useSyncExternalStore(subscribeCustomStickers, customStickers)
+  const [making, setMaking] = useState(false)
+  const photoInput = useRef<HTMLInputElement>(null)
+
+  async function makeFrom(file: File | undefined) {
+    if (!file) return
+    setMaking(true)
+    try {
+      addCustomSticker(await makeSticker(file))
+      navigator.vibrate?.(10)
+    } catch {
+      onNotice("Couldn't make a sticker from that photo")
+    } finally {
+      setMaking(false)
+      if (photoInput.current) photoInput.current.value = ''
+    }
+  }
   const y = useMotionValue(drawerTop(snap, screenHeight))
   // Figma: the closed drawer is just the "Add Magnets" bar, so the tabs and words
   // fade in as the drawer is pulled up instead of peeking out below it
@@ -95,7 +136,7 @@ export function MagnetDrawer({
     }
   }, [])
 
-  function startHold(w: BankWord, e: ReactPointerEvent) {
+  function startHold(w: Collectible, e: ReactPointerEvent) {
     if (hold.current) window.clearTimeout(hold.current.timer)
     const point = { x: e.clientX, y: e.clientY }
     const timer = window.setTimeout(() => {
@@ -114,6 +155,47 @@ export function MagnetDrawer({
       window.clearTimeout(h.timer)
       hold.current = null
     }
+  }
+
+  // A word or sticker in the drawer: tap to collect it, hold to drag it out. The badge counts the pile.
+  function collectButton(w: Collectible, face: ReactNode, className: string) {
+    const count = pileCounts.get(w.id) ?? 0
+    return (
+      <motion.button
+        key={w.id}
+        className={className}
+        whileTap={{ scale: 0.94 }}
+        onPointerDown={(e) => startHold(w, e)}
+        onPointerMove={moveHold}
+        onContextMenu={(e) => e.preventDefault()}
+        onClick={(e) => {
+          if (skipClick.current) {
+            skipClick.current = false
+            return
+          }
+          onPick(w, e.currentTarget.getBoundingClientRect())
+        }}
+        aria-label={w.photo ? `Put ${w.text} on the fridge` : `Collect ${w.sticker ? `the ${w.text} sticker` : w.text}`}
+      >
+        {face}
+        <AnimatePresence>
+          {count > 0 && (
+            // Figma: a small black badge with the number in the pile
+            <motion.span
+              key="badge"
+              className="bank__badge"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0 }}
+              transition={{ duration: 0.16, ease: 'easeOut' }}
+              aria-label={`${count} in the pile`}
+            >
+              {count}
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </motion.button>
+    )
   }
 
   useEffect(() => {
@@ -221,55 +303,69 @@ export function MagnetDrawer({
         {tab === 'words' ? (
           // words can be used as often as you like, so they never run out.
           // Tap to collect; hold and drag to put one straight on the fridge.
+          // lines wrap like text and spread edge to edge, so long words share a line with fewer others
           <div className="bank">
-            {rowsOf(words, 3).map((row) => (
-              <div key={row[0]!.id} className="bank__row">
-                {row.map((w) => {
-                  const count = pileCounts.get(w.id) ?? 0
-                  return (
-                    <motion.button
-                      key={w.id}
-                      className="bank__item"
-                      whileTap={{ scale: 0.94 }}
-                      onPointerDown={(e) => startHold(w, e)}
-                      onPointerMove={moveHold}
-                      onContextMenu={(e) => e.preventDefault()}
-                      onClick={(e) => {
-                        if (skipClick.current) {
-                          skipClick.current = false
-                          return
-                        }
-                        onPick(w, e.currentTarget.getBoundingClientRect())
-                      }}
-                      aria-label={`Collect ${w.text}`}
-                    >
-                      <Magnet text={w.text} />
-                      <AnimatePresence>
-                        {count > 0 && (
-                          // Figma: a small black badge with the number in the pile
-                          <motion.span
-                            key="badge"
-                            className="bank__badge"
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            exit={{ scale: 0 }}
-                            transition={{ duration: 0.16, ease: 'easeOut' }}
-                            aria-label={`${count} in the pile`}
-                          >
-                            {count}
-                          </motion.span>
-                        )}
-                      </AnimatePresence>
-                    </motion.button>
-                  )
-                })}
-              </div>
-            ))}
+            {words.map((w) => collectButton(w, <Magnet text={w.text} />, 'bank__item'))}
           </div>
-        ) : (
+        ) : tab === 'stickers' ? (
+          // Figma "Poem - Add Stickers" (46:1683): the "+" tile first, then the stickers, 3 a row.
+          // They work like words: tap to collect, hold and drag to put one straight on the fridge.
+          <div className="sticker-grid">
+            {/* take a photo (or pick one) and its background is cut away; the sticker lands right after the + */}
+            <motion.button
+              className="sticker-grid__item sticker-grid__make"
+              whileTap={{ scale: 0.92 }}
+              disabled={making}
+              onClick={() => photoInput.current?.click()}
+              aria-label="Make your own sticker from a photo"
+            >
+              <Icon name="plus" size={40} />
+            </motion.button>
+            <input
+              ref={photoInput}
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={(e) => void makeFrom(e.target.files?.[0])}
+            />
+            {making && <span className="sticker-grid__item sticker-grid__making" aria-label="Making your sticker" />}
+            {made
+              .filter((m) => !m.deleted)
+              .map((m) => (
+                // a sticker you made has a "−" badge (top left; the pile count is top right) to take it out of the drawer
+                <span key={m.id} className="sticker-grid__made">
+                  {collectButton(
+                    { id: `sticker-${m.id}`, text: 'homemade', sticker: m.id },
+                    <StickerMagnet sticker={m.id} />,
+                    'sticker-grid__item',
+                  )}
+                  <motion.button
+                    className="remove-badge sticker-grid__delete"
+                    aria-label="Delete this sticker"
+                    whileTap={{ scale: 0.85 }}
+                    onClick={() => {
+                      deleteCustomSticker(m.id)
+                      onNotice('Sticker deleted')
+                    }}
+                  >
+                    <Icon name="minus" size={12} />
+                  </motion.button>
+                </span>
+              ))}
+            {STICKER_ITEMS.map((s) => collectButton(s, <StickerMagnet sticker={s.sticker!} />, 'sticker-grid__item'))}
+          </div>
+        ) : photosOff ? (
           <p className="drawer__note drawer__note--empty">
-            {tab === 'stickers' ? 'Stickers are coming soon.' : 'Images are coming soon.'}
+            Photos are off in your privacy settings.
           </p>
+        ) : (
+          // Figma "coNnect" (46:1922 / 46:2278): the camera roll, 4 a row. Photos don't go into the pile:
+          // tap one to put it straight on the fridge, or hold and drag it where you want it.
+          <div className="photo-grid">
+            {PHOTO_ITEMS.map((p) =>
+              collectButton(p, <img src={PHOTOS.find((x) => x.id === p.photo)!.src} alt="" draggable={false} />, 'photo-grid__item'),
+            )}
+          </div>
         )}
       </motion.div>
       {snap !== 'collapsed' && (

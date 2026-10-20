@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'motion/react'
 
-import { Magnet } from './Magnet'
+import { MagnetFace } from './Magnet'
 import type { PiledMagnet } from '../state/useFridge'
 
 // Figma "Tap to Collect Interaction" (158:4883): tapped words drop into a messy pile
@@ -38,7 +38,7 @@ export function MagnetPile({ pile, centerX, bottom, spawnFrom, onRelease }: Prop
       {pile.length > 0 && (
         <motion.button
           className="pile"
-          aria-label={`Put ${pile.length} collected ${pile.length === 1 ? 'word' : 'words'} on the fridge`}
+          aria-label={`Put ${pile.length} collected ${pile.length === 1 ? 'magnet' : 'magnets'} on the fridge`}
           style={{ left: centerX }}
           initial={false}
           animate={{ top }}
@@ -60,7 +60,7 @@ export function MagnetPile({ pile, centerX, bottom, spawnFrom, onRelease }: Prop
                 transition={DROP}
                 onAnimationComplete={() => spawnFrom.delete(m.id)}
               >
-                <Magnet text={m.text} size="fridge" />
+                <MagnetFace text={m.text} sticker={m.sticker} />
               </motion.span>
             )
           })}

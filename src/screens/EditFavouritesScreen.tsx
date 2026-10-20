@@ -1,6 +1,9 @@
+import { useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 
-import { Fridge, SLOTS, SLOT_SCALE } from '../components/Fridge'
+import { AddFavouritePanel } from '../components/AddFavouritePanel'
+
+import { Fridge, SLOT_MIN_SCALE, SLOT_SCALE, slotsFor } from '../components/Fridge'
 import { FitPoem, fittedRect } from '../components/PoemCanvas'
 import { Icon } from '../components/Icon'
 import { useToast } from '../components/Toast'
@@ -12,7 +15,6 @@ import { prettyDate } from './ViewPoemScreen'
 type Props = {
   draft: (string | null)[]
   onChange: (draft: (string | null)[]) => void
-  onAdd: () => void
   onCancel: () => void
   onSave: () => void
   /** a poem waiting to go on a full fridge: tapping a poem's badge swaps it for this one */
@@ -23,8 +25,10 @@ type Props = {
 // Changes stay a draft until Save.
 const ZOOM = 1.5
 
-export function EditFavouritesScreen({ draft, onChange, onAdd, onCancel, onSave, swapIn }: Props) {
-  const { fridgeStyle, poemFor } = useApp()
+export function EditFavouritesScreen({ draft, onChange, onCancel, onSave, swapIn }: Props) {
+  const { fridgeStyle, poemFor, poems } = useApp()
+  // the search panel is open: which empty spot it fills (the + on top fills the first free one)
+  const [adding, setAdding] = useState<number | null>(null)
   const [ref, size] = useScreenSize()
   const toast = useToast()
   const full = !draft.includes(null)
@@ -34,16 +38,17 @@ export function EditFavouritesScreen({ draft, onChange, onAdd, onCancel, onSave,
 
   return (
     <div className="screen" ref={ref}>
-      <div className="tool-column">
+      {/* back on top, like the other icon columns */}
+      <div className="tool-column tool-column--edit">
+        <button className="icon-btn" aria-label="Cancel" onClick={onCancel}>
+          <Icon name="chevronLeft" size={35} />
+        </button>
         <button
           className="icon-btn"
           aria-label="Add a favourite"
-          onClick={() => (full ? toast.show('Your fridge is full, remove one first') : onAdd())}
+          onClick={() => (full ? toast.show('Your fridge is full, remove one first') : setAdding(draft.indexOf(null)))}
         >
-          <Icon name="plus" size={24} />
-        </button>
-        <button className="icon-btn" aria-label="Cancel" onClick={onCancel}>
-          <Icon name="chevronLeft" size={24} />
+          <Icon name="plus" size={35} />
         </button>
       </div>
       <button className="text-btn top-right" onClick={onSave}>
@@ -66,9 +71,9 @@ export function EditFavouritesScreen({ draft, onChange, onAdd, onCancel, onSave,
           <AnimatePresence>
             {draft.map((date, i) => {
               const poem = date ? poemFor(date) : undefined
-              const slot = SLOTS[i]!
+              const slot = slotsFor(fridgeStyle)[i]!
               if (!poem || !date) return null
-              const r = fittedRect(poem, slot, SLOT_SCALE, true) ?? slot
+              const r = fittedRect(poem, slot, SLOT_SCALE, false, SLOT_MIN_SCALE) ?? slot
               return (
                 <motion.div
                   key={date}
@@ -78,7 +83,7 @@ export function EditFavouritesScreen({ draft, onChange, onAdd, onCancel, onSave,
                   exit={{ opacity: 0, scale: 0.6, transition: { duration: 0.2 } }}
                   style={{ transformOrigin: `${r.x + r.w / 2}px ${r.y + r.h / 2}px` }}
                 >
-                  <FitPoem poem={poem} box={slot} maxScale={SLOT_SCALE} wordsOnly />
+                  <FitPoem poem={poem} box={slot} maxScale={SLOT_SCALE} minScale={SLOT_MIN_SCALE} />
                   <motion.button
                     className="remove-badge"
                     style={{ left: r.x + r.w - 2, top: r.y - 13 }}
@@ -94,14 +99,14 @@ export function EditFavouritesScreen({ draft, onChange, onAdd, onCancel, onSave,
             })}
           </AnimatePresence>
           {draft.map((date, i) => {
-            const slot = SLOTS[i]!
+            const slot = slotsFor(fridgeStyle)[i]!
             return date ? null : (
               <button
                 key={`empty-${i}`}
                 className="empty-slot"
                 style={{ left: slot.x + slot.w / 2 - 14, top: slot.y + slot.h / 2 - 14 }}
                 aria-label="Add a favourite here"
-                onClick={onAdd}
+                onClick={() => setAdding(i)}
               >
                 <Icon name="plus" size={14} />
               </button>
@@ -109,6 +114,20 @@ export function EditFavouritesScreen({ draft, onChange, onAdd, onCancel, onSave,
           })}
         </Fridge>
       </motion.div>
+      <AnimatePresence>
+        {adding !== null && (
+          <AddFavouritePanel
+            poems={poems}
+            exclude={draft}
+            onClose={() => setAdding(null)}
+            onPick={(date) => {
+              onChange(draft.map((d, j) => (j === adding ? date : d)))
+              setAdding(null)
+              navigator.vibrate?.(10)
+            }}
+          />
+        )}
+      </AnimatePresence>
       {toast.node}
     </div>
   )

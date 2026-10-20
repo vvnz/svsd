@@ -1,3 +1,5 @@
+import { useLayoutEffect, useRef } from 'react'
+
 // Hand-drawn icons exported from the Figma file as SVG.
 // They draw in `currentColor`, so set `color` on the icon (or its parent) to tint them.
 import fridge from '../assets/icons/fridge.svg?raw'
@@ -5,6 +7,8 @@ import imessage from '../assets/icons/imessage.svg?raw'
 import instagram from '../assets/icons/instagram.svg?raw'
 import whatsapp from '../assets/icons/whatsapp.svg?raw'
 import facebook from '../assets/icons/facebook.svg?raw'
+import discord from '../assets/icons/discord.svg?raw'
+import close from '../assets/icons/close.svg?raw'
 import x from '../assets/icons/x.svg?raw'
 import spotify from '../assets/icons/spotify.svg?raw'
 import undo from '../assets/icons/undo.svg?raw'
@@ -33,6 +37,8 @@ const ICONS = {
   instagram,
   whatsapp,
   facebook,
+  discord,
+  close,
   x,
   spotify,
   undo,
@@ -64,9 +70,28 @@ type Props = {
   className?: string
 }
 
+// Standalone icon buttons: the hand-drawn icons fill anywhere from under half to almost all of their
+// 24px canvas, so at the same size they look different. In icon buttons and the side menu, each icon is
+// refitted so its drawing takes the same share of its box (25/40), and lines get one weight (see index.css).
+const OPTICAL_FILL = 25 / 40
+
 export function Icon({ name, size, className = '' }: Props) {
+  const ref = useRef<HTMLSpanElement>(null)
+
+  useLayoutEffect(() => {
+    const svg = ref.current?.querySelector('svg')
+    if (!svg || !ref.current?.closest('.icon-btn, .side-menu')) return
+    const box = svg.getBBox()
+    if (!box.width || !box.height) return
+    const side = Math.max(box.width, box.height) / OPTICAL_FILL
+    const cx = box.x + box.width / 2
+    const cy = box.y + box.height / 2
+    svg.setAttribute('viewBox', `${cx - side / 2} ${cy - side / 2} ${side} ${side}`)
+  }, [name])
+
   return (
     <span
+      ref={ref}
       className={`icon ${className}`}
       style={{ width: size, height: size }}
       aria-hidden

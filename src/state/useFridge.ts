@@ -1,15 +1,20 @@
 import { useEffect, useReducer } from 'react'
 
+import type { PhotoId } from '../data/photos'
+import type { StickerId } from '../data/stickers'
+
 export type PlacedMagnet = {
   id: string // unique per magnet: a word can be on the fridge more than once
   text: string
   x: number // px from the left of the fridge surface
   y: number // px from the top of the fridge surface
   rotate: number // degrees, a slight tilt like a real magnet
+  sticker?: StickerId // a sticker magnet instead of a word (then `text` is its name)
+  photo?: PhotoId // a photo magnet (Images tab); photos go straight onto the fridge, never into the pile
 }
 
-// A word tapped in the drawer, waiting in the pile at the bottom of the screen.
-export type PiledMagnet = { id: string; wordId: string; text: string }
+// A word (or sticker) tapped in the drawer, waiting in the pile at the bottom of the screen.
+export type PiledMagnet = { id: string; wordId: string; text: string; sticker?: StickerId }
 
 type Fridge = { placed: PlacedMagnet[]; pile: PiledMagnet[] }
 // `past` holds earlier versions of the fridge for undo. It lives in memory only,

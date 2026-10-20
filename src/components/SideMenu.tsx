@@ -21,8 +21,9 @@ const TAB_BOTTOM = 140.7
 const PANEL_RIGHT = 126.2
 const TAB_CENTER_Y = (TAB_TOP + TAB_BOTTOM) / 2
 const PANEL_CENTER_X = 89
-const ICON_SIZE = 30
-const ICON_TOPS = [31.5, 86.5, 141.5] // 30px icons, 55px apart, as in Frame 200
+// same size as the standalone icon buttons; centred where Figma's 30px icons sit (Frame 200, 55px apart)
+const ICON_SIZE = 35
+const ICON_TOPS = [31.5, 86.5, 141.5] // tops of Figma's 30px icons
 
 export type MenuId = 'poem' | 'favourite' | 'calendar' | 'settings'
 type Item = { id: MenuId; icon: IconName; label: string }
