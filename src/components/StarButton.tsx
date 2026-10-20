@@ -33,7 +33,7 @@ export function StarButton({ pinned, onClick, className = '' }: Props) {
       <motion.svg viewBox="0 0 24 24" className="star-btn__fill" initial={false} animate={{ scale: pinned ? 1 : 0 }}>
         <path d="M12 3.2l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.5l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z" />
       </motion.svg>
-      <Icon name="star" size={40} />
+      <Icon name="star" size={35} />
     </motion.button>
   )
 }

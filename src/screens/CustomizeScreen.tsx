@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
 
-import { Fridge, FRIDGE_H, FRIDGE_W, STYLE_NAMES } from '../components/Fridge'
+import { FRIDGE_STYLES, Fridge, FRIDGE_H, FRIDGE_W, STYLE_NAMES } from '../components/Fridge'
 import { Icon } from '../components/Icon'
 import { useApp, type FridgeStyle } from '../state/appState'
 import { useScreenSize } from '../state/useScreenSize'
 
-const STYLES: FridgeStyle[] = ['graphite', 'steel', 'butter']
+const STYLES: FridgeStyle[] = FRIDGE_STYLES
 const CENTER = 220 / FRIDGE_W
 const SIDE = 165 / FRIDGE_W
 
@@ -25,7 +25,7 @@ export function CustomizeScreen({ onBack, onSave }: Props) {
   return (
     <div className="screen" ref={ref}>
       <button className="icon-btn top-left" aria-label="Back" onClick={onBack}>
-        <Icon name="chevronLeft" size={40} />
+        <Icon name="chevronLeft" size={35} />
       </button>
       <button
         className="text-btn top-right"
@@ -65,7 +65,8 @@ export function CustomizeScreen({ onBack, onSave }: Props) {
               transition={{ type: 'spring', stiffness: 300, damping: 32 }}
             >
               <motion.div initial={false} animate={{ scale: scale / CENTER }} style={{ originX: 0, originY: 0 }} transition={{ type: 'spring', stiffness: 300, damping: 32 }}>
-                <Fridge style={style} scale={CENTER} />
+                {/* fridges out of view skip their WebGPU textures */}
+                <Fridge style={style} scale={CENTER} flat={Math.abs(offset) > 1} />
               </motion.div>
             </motion.button>
           )
@@ -78,10 +79,10 @@ export function CustomizeScreen({ onBack, onSave }: Props) {
         </motion.p>
         <div className="carousel__arrows">
           <button className="icon-btn" aria-label="Previous style" disabled={index === 0} onClick={() => go(-1)}>
-            <Icon name="arrowLeft" size={40} />
+            <Icon name="arrowLeft" size={35} />
           </button>
           <button className="icon-btn" aria-label="Next style" disabled={index === STYLES.length - 1} onClick={() => go(1)}>
-            <Icon name="arrowRight" size={40} />
+            <Icon name="arrowRight" size={35} />
           </button>
         </div>
       </div>

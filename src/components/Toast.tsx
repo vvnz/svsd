@@ -1,7 +1,10 @@
 import { useCallback, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 
-// A small pill that pops up from the bottom for a moment ("Saved to Photos").
+import { Magnet } from './Magnet'
+
+// A word magnet that pops up for a moment ("saved your image"), slightly tilted. The tile is see-through, the text
+// less so (see .toast in index.css).
 export function useToast() {
   const [message, setMessage] = useState<string | null>(null)
   const timer = useRef<number | undefined>(undefined)
@@ -19,12 +22,12 @@ export function useToast() {
           key={message}
           className="toast"
           role="status"
-          initial={{ opacity: 0, y: 16, x: '-50%' }}
-          animate={{ opacity: 1, y: 0, x: '-50%' }}
+          initial={{ opacity: 0, y: 16, x: '-50%', rotate: 0 }}
+          animate={{ opacity: 1, y: 0, x: '-50%', rotate: -1.5 }}
           exit={{ opacity: 0, y: 8, x: '-50%' }}
           transition={{ type: 'spring', stiffness: 500, damping: 34 }}
         >
-          {message}
+          <Magnet text={message} size="fridge" />
         </motion.div>
       )}
     </AnimatePresence>

@@ -4,11 +4,15 @@
 // Poems are laid out in "page" coordinates: a 402px wide phone screen with magnets at 22.6px
 // text (the size used on the Figma "View Favourite" and calendar day screens).
 
+import type { PhotoId } from './photos'
+import type { StickerId } from './stickers'
 import { todayKey } from '../state/useFridge'
 
 export type PoemWord = { text: string; x: number; y: number; rotate?: number }
-export type PoemSticker = { kind: 'apple' | 'smiley'; x: number; y: number; size: number; rotate?: number }
+export type PoemSticker = { kind: StickerId; x: number; y: number; size: number; rotate?: number }
 export type PoemPhoto = { x: number; y: number; width: number }
+// a photo magnet from the Images tab, at its fridge size (PHOTO_W × PHOTO_H)
+export type PoemPhotoMagnet = { id: PhotoId; x: number; y: number; rotate?: number; scale?: number }
 
 export type Poem = {
   date: string // YYYY-MM-DD
@@ -16,6 +20,7 @@ export type Poem = {
   fontSize: number // text size the coordinates were laid out at
   stickers?: PoemSticker[]
   photo?: PoemPhoto
+  photoMagnets?: PoemPhotoMagnet[]
 }
 
 export const PAGE_FONT = 22.6

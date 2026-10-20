@@ -2,16 +2,16 @@ import { motion } from 'motion/react'
 
 import { FitPoem, PoemCanvas, poemBounds } from '../components/PoemCanvas'
 import { Icon } from '../components/Icon'
-import { SteelBackdrop } from '../components/SteelBackdrop'
+import { FridgeBackground, isDarkFinish } from '../components/FridgeBackground'
 import { useApp } from '../state/appState'
 import { useScreenSize } from '../state/useScreenSize'
 
 type Props = { date: string; onShare: () => void; onBack: () => void }
 
-// Figma "Fridge - View Favourite" (43:584): one favourite, full size, on brushed steel.
+// Figma "Fridge - View Favourite" (43:584): one favourite, full size, on the chosen fridge's finish.
 // Viewing doesn't change anything, so it has a back button rather than Figma's "Save".
 export function ViewPoemScreen({ date, onShare, onBack }: Props) {
-  const { poemFor } = useApp()
+  const { poemFor, fridgeStyle } = useApp()
   const poem = poemFor(date)
   const [ref, size] = useScreenSize()
   const b = poem ? poemBounds(poem) : null
@@ -19,13 +19,15 @@ export function ViewPoemScreen({ date, onShare, onBack }: Props) {
   const fits = b && b.y + b.h <= size.height - 16 && b.x + b.w <= size.width
 
   return (
-    <div className="screen" ref={ref}>
-      <SteelBackdrop />
+    <div className={`screen ${isDarkFinish(fridgeStyle) ? 'on-dark' : ''}`} ref={ref}>
+      <FridgeBackground style={fridgeStyle} />
+      {/* a soft darkening at the edges, under the poem */}
+      <div className="vignette vignette--strong" aria-hidden />
       <button className="icon-btn top-left" aria-label="Back" onClick={onBack}>
-        <Icon name="chevronLeft" size={40} />
+        <Icon name="chevronLeft" size={35} />
       </button>
       <button className="icon-btn top-right" aria-label="Share this poem" onClick={onShare}>
-        <Icon name="shareUp" size={40} />
+        <Icon name="shareUp" size={35} />
       </button>
       <p className="poem-date">{prettyDate(date)}</p>
 

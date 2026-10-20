@@ -1,9 +1,14 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 
 import { DEFAULT_FAVOURITES, SEEDED_POEMS, type Poem } from '../data/poems'
+import { STICKER_SIZE } from '../data/stickers'
 import { todayKey, type PlacedMagnet } from './useFridge'
 
-export type FridgeStyle = 'graphite' | 'steel' | 'butter'
+// The five Figma "Fridges" (38:1598)
+export type FridgeStyle = 'white' | 'yellow' | 'blue' | 'pink' | 'steel'
+
+// Styles saved before the five Figma fridges: graphite became steel, butter became yellow
+const OLD_STYLES: Record<string, FridgeStyle> = { graphite: 'steel', butter: 'yellow' }
 
 export type Settings = {
   name: string
@@ -29,7 +34,7 @@ type AppState = {
 const KEY = 'svsd:app'
 const DEFAULTS: AppState = {
   favourites: DEFAULT_FAVOURITES,
-  fridgeStyle: 'steel',
+  fridgeStyle: 'white',
   settings: { name: 'jessica', reminder: true, reminderTime: '21:00', haptics: true },
   // start private: only the photos you pick, nothing else
   privacy: { photos: 'picked', location: 'off', music: false },
@@ -45,6 +50,7 @@ function load(): AppState {
         ...saved,
         settings: { ...DEFAULTS.settings, ...saved.settings },
         privacy: { ...DEFAULTS.privacy, ...saved.privacy },
+        fridgeStyle: OLD_STYLES[saved.fridgeStyle ?? ''] ?? saved.fridgeStyle ?? DEFAULTS.fridgeStyle,
       }
     }
   } catch {
@@ -63,7 +69,11 @@ function todaysPoem(): Poem | null {
     return {
       date: todayKey(),
       fontSize: 19, // the size magnets are on the poem screen
-      words: placed.map((m) => ({ text: m.text, x: m.x, y: m.y, rotate: m.rotate })),
+      words: placed.filter((m) => !m.sticker && !m.photo).map((m) => ({ text: m.text, x: m.x, y: m.y, rotate: m.rotate })),
+      stickers: placed.flatMap((m) =>
+        m.sticker ? [{ kind: m.sticker, x: m.x, y: m.y, size: STICKER_SIZE, rotate: m.rotate }] : [],
+      ),
+      photoMagnets: placed.flatMap((m) => (m.photo ? [{ id: m.photo, x: m.x, y: m.y, rotate: m.rotate }] : [])),
     }
   } catch {
     return null

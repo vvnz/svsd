@@ -1,7 +1,6 @@
 import { motion } from 'motion/react'
 
-import { CalendarTile, tiltFor } from '../components/CalendarTile'
-import { Icon } from '../components/Icon'
+import { CalendarTile, tiltFor, wordMagnetFor } from '../components/CalendarTile'
 import { SideMenu, type MenuId } from '../components/SideMenu'
 import { useToast } from '../components/Toast'
 import { useApp } from '../state/appState'
@@ -20,18 +19,13 @@ const key = (y: number, m: number, d: number) =>
   `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
 
 type Props = {
-  /** 'pick' when choosing a poem to pin from the edit favourites screen */
-  mode: 'browse' | 'pick'
   onMenu: (id: MenuId) => void
   onOpenDay: (date: string) => void
-  onToday: () => void
-  onPick: (date: string) => void
-  onCancelPick: () => void
 }
 
 // Figma "Calendar" (46:593): every day you made a poem becomes a little magnet tile.
-export function CalendarScreen({ mode, onMenu, onOpenDay, onToday, onPick, onCancelPick }: Props) {
-  const { poemFor, favourites } = useApp()
+export function CalendarScreen({ onMenu, onOpenDay }: Props) {
+  const { poemFor } = useApp()
   const [ref, size] = useScreenSize()
   const toast = useToast()
   const today = todayKey()
@@ -39,30 +33,16 @@ export function CalendarScreen({ mode, onMenu, onOpenDay, onToday, onPick, onCan
   let tileIndex = 0
 
   function tap(date: string, hasPoem: boolean) {
-    if (mode === 'pick') {
-      if (!hasPoem) return
-      if (favourites.includes(date)) toast.show('That one is already on your fridge')
-      else onPick(date)
-      return
-    }
-    if (date === today) onToday()
-    else if (hasPoem) onOpenDay(date)
+    // today opens in the day view like any other day, once it has some words
+    if (hasPoem) onOpenDay(date)
+    else if (date === today) toast.show("Add some words to today's poem first")
   }
 
   return (
     <div className="screen" ref={ref}>
-      {mode === 'pick' ? (
-        <>
-          <button className="icon-btn top-left" aria-label="Cancel" onClick={onCancelPick}>
-            <Icon name="chevronLeft" size={40} />
-          </button>
-          <p className="pick-hint">pick a poem to pin</p>
-        </>
-      ) : (
-        <SideMenu screenWidth={size.width} current="calendar" onSelect={onMenu} />
-      )}
+      <SideMenu screenWidth={size.width} current="calendar" onSelect={onMenu} />
 
-      <div className="calendar" style={{ paddingTop: mode === 'pick' ? 64 : 34 }}>
+      <div className="calendar" style={{ paddingTop: 34 }}>
         {MONTHS.map(({ year, month }) => {
           const first = new Date(year, month, 1).getDay()
           const days = new Date(year, month + 1, 0).getDate()
@@ -87,12 +67,12 @@ export function CalendarScreen({ mode, onMenu, onOpenDay, onToday, onPick, onCan
                   const poem = outside ? undefined : poemFor(date)
                   const kind = outside ? 'outside' : poem?.photo ? 'photo' : poem ? 'poem' : 'plain'
                   const isToday = date === today
-                  const tappable = mode === 'pick' ? !!poem : !!poem || isToday
+                  const tappable = !!poem || isToday
                   const i = tileIndex++
                   return (
                     <motion.button
                       key={date + (outside ? 'o' : '')}
-                      className={`month__day ${tappable ? '' : 'is-inert'} ${mode === 'pick' && favourites.includes(date) ? 'is-pinned' : ''}`}
+                      className={`month__day ${tappable ? '' : 'is-inert'}`}
                       disabled={!tappable}
                       aria-label={date}
                       onClick={() => tap(date, !!poem)}
@@ -103,9 +83,11 @@ export function CalendarScreen({ mode, onMenu, onOpenDay, onToday, onPick, onCan
                     >
                       <CalendarTile
                         day={d}
-                        kind={isToday && !poem ? 'plain' : kind}
+                        // today is always just its number, circled, even once it has a poem
+                        kind={isToday ? 'plain' : kind}
                         today={isToday}
                         tilt={tiltFor(date)}
+                        variant={wordMagnetFor(date)}
                         size={CELL}
                       />
                     </motion.button>

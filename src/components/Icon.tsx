@@ -7,6 +7,8 @@ import imessage from '../assets/icons/imessage.svg?raw'
 import instagram from '../assets/icons/instagram.svg?raw'
 import whatsapp from '../assets/icons/whatsapp.svg?raw'
 import facebook from '../assets/icons/facebook.svg?raw'
+import discord from '../assets/icons/discord.svg?raw'
+import close from '../assets/icons/close.svg?raw'
 import x from '../assets/icons/x.svg?raw'
 import spotify from '../assets/icons/spotify.svg?raw'
 import undo from '../assets/icons/undo.svg?raw'
@@ -35,6 +37,8 @@ const ICONS = {
   instagram,
   whatsapp,
   facebook,
+  discord,
+  close,
   x,
   spotify,
   undo,
@@ -67,8 +71,8 @@ type Props = {
 }
 
 // Standalone icon buttons: the hand-drawn icons fill anywhere from under half to almost all of their
-// 24px canvas, so at the same size they look different. Inside an .icon-btn, each icon is refitted so its
-// drawing is the same size (25 of 40px, 28px with the 3px line), and lines get one weight (see index.css).
+// 24px canvas, so at the same size they look different. In icon buttons and the side menu, each icon is
+// refitted so its drawing takes the same share of its box (25/40), and lines get one weight (see index.css).
 const OPTICAL_FILL = 25 / 40
 
 export function Icon({ name, size, className = '' }: Props) {
@@ -76,7 +80,7 @@ export function Icon({ name, size, className = '' }: Props) {
 
   useLayoutEffect(() => {
     const svg = ref.current?.querySelector('svg')
-    if (!svg || !ref.current?.closest('.icon-btn')) return
+    if (!svg || !ref.current?.closest('.icon-btn, .side-menu')) return
     const box = svg.getBBox()
     if (!box.width || !box.height) return
     const side = Math.max(box.width, box.height) / OPTICAL_FILL

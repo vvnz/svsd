@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 
-import { CalendarTile, tiltFor } from '../components/CalendarTile'
+import { CalendarTile, tiltFor, wordMagnetFor } from '../components/CalendarTile'
 import { FitPoem } from '../components/PoemCanvas'
 import { Icon } from '../components/Icon'
 import { StarButton } from '../components/StarButton'
-import { SteelBackdrop } from '../components/SteelBackdrop'
+import { FridgeBackground, isDarkFinish } from '../components/FridgeBackground'
 import { useToast } from '../components/Toast'
 import { useApp } from '../state/appState'
 import { useScreenSize } from '../state/useScreenSize'
@@ -22,7 +22,7 @@ type Props = {
 
 // Figma calendar day view (54:3592): one day's poem, with a strip of day tiles to flip through.
 export function DayScreen({ date, onDate, onBack, onShare, onFavouritesFull }: Props) {
-  const { poems, poemFor, favourites, toggleFavourite } = useApp()
+  const { poems, poemFor, favourites, toggleFavourite, fridgeStyle } = useApp()
   const [ref, size] = useScreenSize()
   const toast = useToast()
   const stripRef = useRef<HTMLDivElement>(null)
@@ -56,15 +56,18 @@ export function DayScreen({ date, onDate, onBack, onShare, onFavouritesFull }: P
   const month = date.slice(0, 7)
 
   return (
-    <div className="screen day-screen" ref={ref}>
-      <SteelBackdrop />
+    <div className={`screen day-screen ${isDarkFinish(fridgeStyle) ? 'on-dark' : ''}`} ref={ref}>
+      {/* the chosen fridge's finish, like today's poem */}
+      <FridgeBackground style={fridgeStyle} />
+      {/* a soft darkening at the edges, under the magnets */}
+      <div className="vignette vignette--strong" aria-hidden />
 
       <div className="tool-column tool-column--day">
         <button className="icon-btn" aria-label="Back to calendar" onClick={onBack}>
-          <Icon name="chevronLeft" size={40} />
+          <Icon name="chevronLeft" size={35} />
         </button>
         <button className="icon-btn" aria-label="Share this poem" onClick={() => onShare(date)}>
-          <Icon name="shareUp" size={40} />
+          <Icon name="shareUp" size={35} />
         </button>
         <StarButton pinned={pinned} onClick={star} />
       </div>
@@ -119,6 +122,7 @@ export function DayScreen({ date, onDate, onBack, onShare, onFavouritesFull }: P
                 kind="poem"
                 selected={p.date === date}
                 tilt={tiltFor(p.date)}
+                variant={wordMagnetFor(p.date)}
                 size={68}
               />
             </motion.button>
