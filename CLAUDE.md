@@ -1,4 +1,4 @@
-# svsd · fridge magnet poetry
+# ref. · fridge magnet poetry (repo: svsd)
 
 A designathon project (theme: storytelling). Each day you get a word bank of ~30 magnets
 and arrange up to 20 of them on your fridge to make a poem about your day.
@@ -39,6 +39,7 @@ Hi-fis are in the section **"hello fi"** (node `20:1330`). Key frames:
 | Share Screen | 43:630 |
 | Calendar (month / day) | 46:593 / 54:3592 |
 | Splash | 9:1075 |
+| Splash animation, on hold (lofi page, Frame A / middle / Frame B) | 401:2572 |
 
 When building a screen, pull it with the Figma MCP (`get_design_context` on its node) and match it.
 Reuse the tokens in `src/index.css` instead of hardcoding new colors.
@@ -61,7 +62,8 @@ shadow `1px 2px 4.8px rgba(0,0,0,.25), 1px 1px 0 rgba(47,47,47,.6)`.
 
 - `src/App.tsx` the screen flow and routes: splash → privacy → today's fridge, plus favourites,
   edit favourites, view poem, customize, share, calendar, day, settings (stack-style slide transitions)
-- `src/screens/SplashScreen.tsx`, `PrivacyScreen.tsx` onboarding. The privacy screen (not in Figma) replaced the
+- `src/screens/SplashScreen.tsx`, `PrivacyScreen.tsx` onboarding. The door-opening animation (lofi "ANIMATION" section,
+  401:2572) is on hold: the splash is the still fridge icon and "ref." for now. The privacy screen (not in Figma) replaced the
   old "connect app" + sign-in screens: it asks what the fridge may use (photos / location / music apps), the same
   `PrivacyOptions` as Settings
 - `src/screens/PoemScreen.tsx` today's fridge: placing, dragging, removing magnets
