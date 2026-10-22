@@ -406,6 +406,7 @@ button {
   z-index: 45;
   translate: -50% -80%;
   pointer-events: none;
+  will-change: transform; /* see .fridge-magnet: no shadow trail while it follows the finger */
   filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.2));
 }
 
@@ -418,6 +419,9 @@ button {
   pointer-events: auto;
   cursor: grab;
   touch-action: none;
+  /* its own GPU layer, so a moving magnet's shadow moves with it. Without this, iOS Safari only repaints the magnet's
+     box and leaves a trail of shadow pixels (the drop-shadow spills outside it) when you drag a sticker */
+  will-change: transform;
 }
 
 /* ---------- Magnet ---------- */
@@ -635,6 +639,7 @@ button {
   top: 0;
   translate: -50% 0;
   filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.12));
+  will-change: transform; /* see .fridge-magnet */
 }
 
 .drawer__note {
@@ -1451,6 +1456,10 @@ button {
 .sticker--fridge,
 .poem-canvas__sticker {
   filter: drop-shadow(1px 2px 2.4px rgba(0, 0, 0, 0.25)) drop-shadow(1px 1px 0 rgba(47, 47, 47, 0.6));
+}
+/* the filtered sticker gets a layer of its own too, sized to include its shadow (iOS Safari shadow trails) */
+.sticker--fridge {
+  transform: translateZ(0);
 }
 .fridge-magnet:active .sticker--fridge {
   filter: drop-shadow(3px 8px 7px rgba(0, 0, 0, 0.22)) drop-shadow(1px 1px 0 rgba(47, 47, 47, 0.6));
