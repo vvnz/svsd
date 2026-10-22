@@ -19,10 +19,9 @@ const CORE_PER_DAY = 5
 const SMALL_PER_DAY = 2
 const OTHER_PER_DAY = 8
 const CUSTOM_PER_DAY = 5
-const CUSTOM_POOL = [
-  '3am', 'dumplings', 'midterm', 'subway', 'matcha', 'playlist', 'studio', 'roommate',
-  'sunset', 'library', 'bike', 'deadline', 'sketchbook', 'rooftop', 'ramen', 'chorus',
-]
+// for the demo: a day at union station and the cn tower, with "here's where the story ends" by the sundays.
+// Exactly 5, so the same words show every day.
+const CUSTOM_POOL = ['tower', 'city', 'golden', 'ends', 'story']
 
 // Small seeded random, so the same date always gives the same numbers.
 function seededRandom(seed: number) {
