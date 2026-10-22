@@ -28,9 +28,7 @@ export function SplashScreen({ onDone }: Props) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.35, duration: 0.4 }}
       >
-        fridge magnet
-        <br />
-        app!
+        ref.
       </motion.p>
     </button>
   )

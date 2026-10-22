@@ -131,7 +131,7 @@ export function SettingsScreen({
             </button>
           </Section>
 
-          <p className="settings__note">Fridge App never stores your information</p>
+          <p className="settings__note">ref. never stores your information</p>
         </motion.div>
       </div>
       {toast.node}

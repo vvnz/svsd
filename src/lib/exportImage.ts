@@ -38,7 +38,9 @@ export function startCanvasCapture() {
     queue.submit = function (this: GPUQueue, ...args: Parameters<GPUQueue['submit']>) {
       const result = submit.apply(this, args)
       for (const canvas of document.querySelectorAll<HTMLCanvasElement>('.share-card--export canvas')) {
-        if (canvas.width < 2 || canvas.height < 2) continue
+        // a canvas starts at the default 300 × 150 before the shader sizes it; a frame of the wrong shape would come out
+        // stretched, so only keep frames drawn at the canvas's real size
+        if (canvas.width < 2 || canvas.height < 2 || !fitsElement(canvas)) continue
         const copy = document.createElement('canvas')
         copy.width = canvas.width
         copy.height = canvas.height
@@ -72,6 +74,13 @@ export function startCanvasCapture() {
       return frames
     },
   }
+}
+
+function fitsElement(canvas: HTMLCanvasElement) {
+  const w = canvas.clientWidth
+  const h = canvas.clientHeight
+  if (!w || !h) return false
+  return Math.abs(canvas.width / canvas.height - w / h) < 0.02 * (w / h) && canvas.width >= w * 0.9
 }
 
 function isBlank(ctx: CanvasRenderingContext2D, w: number, h: number) {
